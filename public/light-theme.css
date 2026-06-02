@@ -1,0 +1,203 @@
+/*
+  Light Theme (Standalone)
+  This file is only loaded when a user explicitly enables light mode.
+  Dark mode remains the default and is not modified.
+
+  Exactly 4 base colors:
+  - White canvas:  #ffffff
+  - Black text:    #000000
+  - Blue accent:   #2563eb
+  - Neutral accent:#e5e7eb
+*/
+
+html[data-theme="light"] {
+  --lt-bg: #F4F6F9;
+  --lt-card: #FFFFFF;
+  --lt-card-hover: #F0F5FF;
+  --lt-alt: #EAF0F8;
+  --lt-text: #1a202c;
+  --lt-accent: #2563eb;
+  --lt-neutral: #e2e8f0;
+  --lt-header: #ffffff;
+
+  /* Map app variables to the 4-color palette */
+  --background: var(--lt-bg);
+  --foreground: var(--lt-text);
+  --color-bg: var(--lt-bg);
+  --color-surface: var(--lt-card);
+  --color-deep: var(--lt-alt);
+  --color-primary: var(--lt-accent);
+  --color-accent: var(--lt-accent);
+  --color-muted: rgba(0, 0, 0, 0.6);
+  --color-border: var(--lt-neutral);
+  --color-text: var(--lt-text);
+  --color-text-soft: rgba(0, 0, 0, 0.6);
+}
+
+html[data-theme="light"] body {
+  background: var(--lt-bg) !important;
+  color: var(--lt-text) !important;
+}
+
+/* Core surfaces used across the app (override hard-coded dark utility classes) */
+html[data-theme="light"] [class*="bg-[#020617]" i],
+html[data-theme="light"] [class*="bg-[#060D14]" i],
+html[data-theme="light"] [class*="bg-[#070E17]" i],
+html[data-theme="light"] [class*="bg-[#040A10]" i] {
+  background-color: var(--lt-bg) !important;
+}
+
+html[data-theme="light"] [class*="bg-[#0f172a]" i],
+html[data-theme="light"] [class*="bg-[#0a101f]" i],
+html[data-theme="light"] [class*="bg-[#1e293b]" i],
+html[data-theme="light"] [class*="bg-[#111827]" i],
+html[data-theme="light"] [class*="bg-[rgba(15,23,42" i],
+html[data-theme="light"] [class*="bg-[rgba(2,6,23" i] {
+  background-color: var(--lt-card) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
+}
+
+html[data-theme="light"] [class*="bg-[#020617]" i]:hover,
+html[data-theme="light"] [class*="bg-[#0f172a]" i]:hover,
+html[data-theme="light"] [class*="bg-[rgba(15,23,42" i]:hover {
+  background-color: var(--lt-card-hover) !important;
+}
+
+html[data-theme="light"] [class*="bg-[#020617]/" i],
+html[data-theme="light"] [class*="bg-[#060D14]/" i] {
+  background-color: var(--lt-bg) !important;
+}
+
+html[data-theme="light"] [class*="bg-[#0f172a]/" i],
+html[data-theme="light"] [class*="bg-[#0a101f]/" i],
+html[data-theme="light"] [class*="bg-[#1e293b]/" i],
+html[data-theme="light"] [class*="bg-[#111827]/" i] {
+  background-color: var(--lt-card) !important;
+}
+
+/* Neutral panels that were translucent in dark mode */
+html[data-theme="light"] .bg-white\/5,
+html[data-theme="light"] .bg-white\/10,
+html[data-theme="light"] .bg-white\/\[0\.03\],
+html[data-theme="light"] .bg-white\/\[0\.04\],
+html[data-theme="light"] .bg-white\/\[0\.06\],
+html[data-theme="light"] .bg-white\/\[0\.08\] {
+  background-color: var(--lt-neutral) !important;
+}
+
+/* Kill dark gradients on cards/sections */
+html[data-theme="light"] [class*="bg-gradient-to-"] {
+  background-image: none !important;
+  background-color: var(--lt-bg) !important;
+}
+
+/* Tailwind gradient stop variables (override any dark stops) */
+html[data-theme="light"] [class*="from-[#"],
+html[data-theme="light"] [class*="to-[#"],
+html[data-theme="light"] [class*="via-[#"] {
+  --tw-gradient-from: var(--lt-bg) !important;
+  --tw-gradient-to: var(--lt-bg) !important;
+  --tw-gradient-stops: var(--lt-bg), var(--lt-bg) !important;
+}
+
+/* Text: convert white-based utilities to black */
+html[data-theme="light"] .text-white,
+html[data-theme="light"] .text-white\/90,
+html[data-theme="light"] .text-white\/85,
+html[data-theme="light"] .text-white\/80 {
+  color: rgba(0, 0, 0, 0.9) !important;
+}
+
+html[data-theme="light"] .text-white\/70,
+html[data-theme="light"] .text-white\/60,
+html[data-theme="light"] .text-white\/50 {
+  color: rgba(0, 0, 0, 0.65) !important;
+}
+
+html[data-theme="light"] .text-white\/45,
+html[data-theme="light"] .text-white\/40,
+html[data-theme="light"] .text-white\/30,
+html[data-theme="light"] .text-white\/20,
+html[data-theme="light"] .text-white\/10 {
+  color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* If a component still uses dark text-soft on dark bg, normalize in light mode */
+html[data-theme="light"] [class*="text-white/"] {
+  color: rgba(0, 0, 0, 0.65) !important;
+}
+
+/* Force dark text when text color is applied via inline gradients */
+html[data-theme="light"] .professional-gradient-text,
+html[data-theme="light"] .text-gradient-blue {
+  background: none !important;
+  -webkit-text-fill-color: var(--lt-text) !important;
+  color: var(--lt-text) !important;
+}
+
+/* Accent: unify cyan accents to professional blue */
+html[data-theme="light"] .text-\[\#38bdf8\],
+html[data-theme="light"] .text-\[\#38bdf8\]\/70,
+html[data-theme="light"] .text-\[\#38bdf8\]\/80,
+html[data-theme="light"] .text-\[\#38bdf8\]\/50,
+html[data-theme="light"] .bg-\[\#38bdf8\],
+html[data-theme="light"] .border-\[\#38bdf8\],
+html[data-theme="light"] .border-\[\#38bdf8\]\/20,
+html[data-theme="light"] .border-\[\#38bdf8\]\/30,
+html[data-theme="light"] .border-\[\#38bdf8\]\/40 {
+  color: var(--lt-accent) !important;
+  border-color: var(--lt-accent) !important;
+}
+
+html[data-theme="light"] .bg-\[\#38bdf8\],
+html[data-theme="light"] .bg-\[\#38bdf8\]\/10,
+html[data-theme="light"] .bg-\[\#38bdf8\]\/\[0\.08\] {
+  background-color: rgba(37, 99, 235, 0.12) !important;
+}
+
+/* Borders */
+html[data-theme="light"] .border-white\/5,
+html[data-theme="light"] .border-white\/10,
+html[data-theme="light"] .border-white\/\[0\.04\],
+html[data-theme="light"] .border-white\/\[0\.06\],
+html[data-theme="light"] .border-white\/\[0\.08\],
+html[data-theme="light"] .border-white\/\[0\.05\],
+html[data-theme="light"] [class*="border-[rgba"] {
+  border-color: var(--lt-neutral) !important;
+}
+
+/* Gradients + inline background styles (footer + hero sections) */
+html[data-theme="light"] footer,
+html[data-theme="light"] header,
+html[data-theme="light"] .fixed.top-0,
+html[data-theme="light"] .sticky.top-0 {
+  background: var(--lt-header) !important;
+  background-image: none !important;
+  border-bottom: 1px solid var(--lt-neutral) !important;
+}
+
+html[data-theme="light"] [style*="linear-gradient"] {
+  background: var(--lt-bg) !important;
+}
+
+/* Hide distracting decorative backgrounds in light mode */
+html[data-theme="light"] .light-hide {
+  display: none !important;
+}
+html[data-theme="light"] .light-hide-bg[style] {
+  background-color: var(--lt-bg) !important;
+}
+
+/* Make common dark overlays become neutral/white */
+html[data-theme="light"] .bg-black\/60,
+html[data-theme="light"] .bg-black\/30 {
+  background-color: var(--lt-neutral) !important;
+}
+
+/* Ensure link/interactive accents become blue */
+html[data-theme="light"] a,
+html[data-theme="light"] button,
+html[data-theme="light"] [role="button"] {
+  accent-color: var(--lt-accent);
+}
+
