@@ -1,47 +1,41 @@
 "use client";
 
 import Image from "next/image";
-import { motion, useScroll, useTransform, type Variants } from "framer-motion";
-import { ShieldCheck, BadgeCheck, Building2, FileScan, LockKeyhole, Users, Code, Award, ChevronRight } from "lucide-react";
-import { Footer } from "@/components/ui/footer";
-import { BackgroundPaths } from "@/components/ui/background-paths";
-import { SiteHeader } from "../components/site-header";
-import { cn } from "@/lib/utils";
+import { ContentPageShell } from "@/components/content/content-page-shell";
+import { ContentSection } from "@/components/content/content-section";
 
 const leaders = [
   {
-    name: "MR. Fawad Khan",
+    name: "Mr. Fawad Khan",
     role: "Director General",
-    organization: "Galiyat Development Authority (GDA) Abbottabad",
-    description: "Visionary leadership steering GDA towards digital excellence and administrative transparency.",
-    icon: Award,
+    organization: "Galiyat Development Authority (GDA), Abbottabad",
+    description:
+      "Leading GDA's digital governance initiatives and administrative transparency across the Galiyat region.",
   },
   {
-    name: "MR. Farukh Jadoon",
+    name: "Mr. Farukh Jadoon",
     role: "Director (BCA)",
     organization: "Galiyat Development Authority (GDA)",
-    description: "Driving force behind the Building Control Authority's digital transformation and document security.",
-    icon: ShieldCheck,
-  }
+    description:
+      "Overseeing Building Control Authority operations and the digital security of official documentation.",
+  },
 ];
 
 const developers = [
   {
     name: "Muhammad Khizar Lodhi",
     role: "Full Stack Developer",
-    contribution: "System Architecture & Frontend Design",
-    image: "/khizar.jpg", // Placeholder if not exist
+    contribution: "System architecture and frontend design",
     github: "https://github.com/khizar8055",
     linkedin: "https://www.linkedin.com/in/khizar-lodhi-612137359/",
   },
   {
     name: "Mohibullah Lodhi",
     role: "Full Stack Developer",
-    contribution: "Backend Systems & Database Security",
-    image: "/mohib.jpg", // Placeholder if not exist
+    contribution: "Backend systems and database security",
     github: "https://github.com/mohibullahlodhi",
     linkedin: "https://www.linkedin.com/in/mohib-ullah-lodhi-20baa03a7/",
-  }
+  },
 ];
 
 function SiGithub({ className }: { className?: string }) {
@@ -61,190 +55,80 @@ function SiLinkedin({ className }: { className?: string }) {
 }
 
 export default function AboutPage() {
-  const { scrollYProgress } = useScroll();
-  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.95]);
-
-  const cardVariants: Variants = {
-    hidden: { opacity: 0, y: 30, rotateX: -10 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      rotateX: 0,
-      transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] }
-    }
-  };
-
   return (
-    <div className="relative min-h-screen bg-[#020617] overflow-x-hidden selection:bg-[#38bdf8]/30 selection:text-white">
-      <BackgroundPaths mode="background" />
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/50 to-[#020617] pointer-events-none" />
-      
-      <SiteHeader />
+    <ContentPageShell>
+      <header className="page-hero">
+        <h1 className="page-hero__title">
+          About <span className="page-hero__title-accent">GDA-DVS</span>
+        </h1>
+        <p className="page-hero__subtitle">
+          A secure document verification platform for the Galiyat Development Authority—built for
+          trusted issuance and public authentication.
+        </p>
+      </header>
 
-      <main className="relative z-10 pt-32 pb-24 px-6 sm:px-10">
-        <div className="max-w-7xl mx-auto">
-          
-          {/* HERO SECTION */}
-          <motion.section 
-            style={{ opacity, scale }}
-            className="mb-32 text-center"
-          >
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#38bdf8]/20 bg-[#38bdf8]/5 px-4 py-1.5 mb-8">
-                <Building2 className="h-3.5 w-3.5 text-[#38bdf8]" />
-                <span className="dmsans text-[10px] font-bold uppercase tracking-[0.3em] text-[#38bdf8]">About GDA-DVS</span>
-              </div>
-              <h1 className="playfair text-5xl sm:text-7xl lg:text-8xl font-bold text-white mb-8 tracking-tight">
-                Institutional <span className="professional-gradient-text">Excellence</span>
-              </h1>
-              <p className="dmsans max-w-3xl mx-auto text-white/50 text-lg sm:text-xl leading-relaxed font-light mb-12">
-                A state-of-the-art Document Verification System (DVS) designed for the Galiyat Development Authority to ensure immutable trust and digital accountability.
-              </p>
+      <section className="page-prose max-w-3xl mx-auto mb-12 sm:mb-16">
+        <h2 className="page-prose__heading">About the system</h2>
+        <p className="page-prose__text">
+          The GDA Document Verification System (GDA-DVS) standardizes the lifecycle of official
+          records—from secure issuance by authorized personnel to instant public verification. Each
+          document receives a unique identifier and machine-readable barcode, registered in a
+          protected central ledger. The platform supports administrative transparency, reduces
+          forgery risk, and gives citizens a straightforward way to confirm authenticity online.
+        </p>
+      </section>
 
-              {/* Professional System Description Paragraph */}
-              <div className="max-w-4xl mx-auto rounded-[2rem] border border-white/5 bg-white/[0.02] p-8 sm:p-12 backdrop-blur-md">
-                <h3 className="playfair text-2xl font-bold text-[#38bdf8] mb-6">About the System</h3>
-                <p className="dmsans text-white/60 text-base leading-relaxed text-justify">
-                  The GDA Document Verification System (GDA-DVS) stands as a cornerstone of digital governance within the Galiyat Development Authority. 
-                  Engineered with a focus on administrative transparency and document integrity, this platform standardizes the lifecycle of official 
-                  records—from secure issuance by authorized personnel to instant, decentralized verification by the public. By leveraging unique 
-                  barcode identifiers and encrypted registry ledgers, the system mitigates the risk of document tampering and ensures that 
-                  citizens and institutions can interact with the Authority through a trusted, verifiable digital interface. This initiative 
-                  represents our commitment to modernizing public service delivery through cutting-edge technology and rigorous security protocols.
-                </p>
-              </div>
-            </motion.div>
-          </motion.section>
-
-          {/* LEADERSHIP SECTION */}
-          <section className="mb-40">
-            <div className="flex items-center gap-4 mb-16">
-              <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[#38bdf8]/20" />
-              <h2 className="playfair text-3xl font-bold text-white">Under the Leadership of</h2>
-              <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[#38bdf8]/20" />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-              {leaders.map((leader, idx) => (
-                <motion.div
-                  key={idx}
-                  variants={cardVariants}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true }}
-                  className="group relative rounded-[3rem] border border-white/5 bg-[#0F172A]/40 backdrop-blur-xl p-8 sm:p-12 hover:border-[#38bdf8]/20 transition-all duration-500 overflow-hidden"
-                >
-                  <div className="absolute -right-12 -top-12 h-64 w-64 rounded-full bg-[#38bdf8]/5 blur-3xl group-hover:bg-[#38bdf8]/10 transition-colors duration-500" />
-                  
-                  <div className="relative z-10">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-[#38bdf8]/20 bg-[#38bdf8]/5 text-[#38bdf8] mb-8 group-hover:scale-110 group-hover:bg-[#38bdf8]/10 transition-all duration-500">
-                      <leader.icon className="h-8 w-8" />
-                    </div>
-                    <h3 className="playfair text-3xl font-bold text-white mb-2 group-hover:text-[#38bdf8] transition-colors">
-                      {leader.name}
-                    </h3>
-                    <p className="dmsans text-[#38bdf8] text-sm font-bold uppercase tracking-[0.15em] mb-6">
-                      {leader.role}
-                    </p>
-                    <p className="dmsans text-white/40 text-sm leading-relaxed mb-6 font-light">
-                      {leader.description}
-                    </p>
-                    <div className="pt-6 border-t border-white/5 flex items-center gap-2 text-white/20 dmsans text-[10px] font-bold uppercase tracking-widest">
-                      <Building2 className="h-3.5 w-3.5" />
-                      {leader.organization}
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </section>
-
-          {/* DEVELOPMENT TEAM SECTION */}
-          <section className="mb-32">
-            <div className="text-center mb-20">
-              <h2 className="playfair text-4xl font-bold text-white mb-4">Architects of DVS</h2>
-              <p className="dmsans text-white/30 text-sm tracking-widest uppercase">Developed & Engineered By</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-              {developers.map((dev, idx) => (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, x: idx === 0 ? -30 : 30 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  className="relative group rounded-[2.5rem] border border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent p-10 hover:border-[#38bdf8]/30 transition-all duration-500"
-                >
-                  <div className="flex flex-col items-center text-center">
-                    <div className="relative mb-6">
-                      <div className="h-24 w-24 rounded-full border-2 border-[#38bdf8]/20 p-1 group-hover:border-[#38bdf8]/50 transition-all duration-500">
-                        <div className="h-full w-full rounded-full bg-gradient-to-br from-[#0F172A] to-[#020617] flex items-center justify-center">
-                          <Users className="h-10 w-10 text-white/20 group-hover:text-[#38bdf8] transition-colors" />
-                        </div>
-                      </div>
-                      <div className="absolute -bottom-2 -right-2 h-10 w-10 rounded-2xl bg-[#020617] border border-white/5 flex items-center justify-center text-[#38bdf8] shadow-2xl">
-                        <Code className="h-5 w-5" />
-                      </div>
-                    </div>
-                    
-                    <h3 className="playfair text-2xl font-bold text-white mb-2">{dev.name}</h3>
-                    <p className="dmsans text-[#38bdf8]/80 text-xs font-bold uppercase tracking-[0.2em] mb-4">{dev.role}</p>
-                    <p className="dmsans text-white/30 text-[13px] leading-relaxed mb-8">{dev.contribution}</p>
-                    
-                    <div className="flex items-center gap-4">
-                      <a
-                        href={dev.github}
-                        target="_blank"
-                        rel="noreferrer"
-                        aria-label={`${dev.name} GitHub`}
-                        className="h-10 w-10 rounded-xl border border-white/5 bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-[#38bdf8]/20 transition-all"
-                      >
-                        <SiGithub className="h-4.5 w-4.5" />
-                      </a>
-                      <a
-                        href={dev.linkedin}
-                        target="_blank"
-                        rel="noreferrer"
-                        aria-label={`${dev.name} LinkedIn`}
-                        className="h-10 w-10 rounded-xl border border-white/5 bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-[#38bdf8]/20 transition-all"
-                      >
-                        <SiLinkedin className="h-4.5 w-4.5" />
-                      </a>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </section>
-
-          {/* GDA LOGO SECTION */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="flex flex-col items-center justify-center pt-20 border-t border-white/5"
-          >
-            <div className="relative h-40 w-40 mb-8 grayscale hover:grayscale-0 transition-all duration-700 opacity-20 hover:opacity-100">
-              <Image
-                src="/gda_logo.png"
-                alt="GDA Official Logo"
-                fill
-                sizes="160px"
-                className="object-contain"
-              />
-            </div>
-            <p className="dmsans text-[10px] font-bold uppercase tracking-[0.4em] text-white/20">Official GDA Document Verification System</p>
-          </motion.div>
-
+      <ContentSection eyebrow="Leadership" title="Under the leadership of">
+        <div className="content-card-grid content-card-grid--2">
+          {leaders.map((leader) => (
+            <article key={leader.name} className="content-leader-card">
+              <p className="content-leader-card__role">{leader.role}</p>
+              <h3 className="content-leader-card__name">{leader.name}</h3>
+              <p className="content-leader-card__text">{leader.description}</p>
+              <p className="content-leader-card__org">{leader.organization}</p>
+            </article>
+          ))}
         </div>
-      </main>
+      </ContentSection>
 
-      <Footer />
-    </div>
+      <ContentSection eyebrow="Development" title="Technical team" description="Engineering and implementation of GDA-DVS.">
+        <div className="content-card-grid content-card-grid--2 max-w-3xl">
+          {developers.map((dev) => (
+            <article key={dev.name} className="content-team-card">
+              <h3 className="content-team-card__name">{dev.name}</h3>
+              <p className="content-team-card__role">{dev.role}</p>
+              <p className="content-team-card__text">{dev.contribution}</p>
+              <div className="content-team-card__links">
+                <a
+                  href={dev.github}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={`${dev.name} on GitHub`}
+                  className="content-team-card__link"
+                >
+                  <SiGithub />
+                </a>
+                <a
+                  href={dev.linkedin}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={`${dev.name} on LinkedIn`}
+                  className="content-team-card__link"
+                >
+                  <SiLinkedin />
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+      </ContentSection>
+
+      <div className="content-page-footer-mark">
+        <div className="content-page-footer-mark__logo relative h-16 w-16">
+          <Image src="/gda_logo.png" alt="GDA official logo" fill sizes="64px" className="object-contain" />
+        </div>
+        <p className="content-page-footer-mark__caption">Galiyat Development Authority · Document Verification System</p>
+      </div>
+    </ContentPageShell>
   );
 }

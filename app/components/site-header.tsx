@@ -7,7 +7,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 export function SiteHeader() {
   return (
 
-    <header className="fixed inset-x-0 top-0 z-50 h-[72px] bg-[#060D14]/80 backdrop-blur-xl border-b border-white/5">
+    <header className="site-header fixed inset-x-0 top-0 z-50 h-[72px] bg-[#060D14]/80 backdrop-blur-xl border-b border-white/5">
 
       <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-[rgba(201,168,76,0.7)] to-transparent" />
 

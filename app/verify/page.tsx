@@ -183,24 +183,24 @@ function VerifyContent() {
   };
 
   const renderRows = (rows: ResultRow[]) => (
-    <div className="overflow-hidden rounded-2xl border border-[#38bdf8]/10 bg-[#0f172a]/95">
+    <div className="verify-details-table overflow-hidden rounded-2xl border border-[#38bdf8]/10 bg-[#0f172a]/95">
       {rows.map((row, idx) => (
         <div
           key={row.label}
-          className={`grid grid-cols-1 gap-1 border-b border-white/5 px-5 py-4 last:border-b-0 sm:grid-cols-[160px_1fr] sm:items-center ${idx % 2 === 0 ? "bg-white/5" : "bg-transparent"
+          className={`verify-details-row grid grid-cols-1 gap-1 border-b border-white/5 px-5 py-4 last:border-b-0 sm:grid-cols-[160px_1fr] sm:items-center ${idx % 2 === 0 ? "bg-white/5" : "bg-transparent"
             }`}
         >
-          <p className="text-[10px] font-bold uppercase tracking-wider text-white/40 dmsans">
+          <p className="verify-details-label text-[10px] font-bold uppercase tracking-wider text-white/40 dmsans">
             {row.label}
           </p>
-          <div className="text-sm text-white/85 font-medium dmsans">
+          <div className="verify-details-value text-sm text-white/85 font-medium dmsans">
             {row.label === "Status" ? (
-              <span className="inline-flex items-center rounded-full border border-emerald-600/10 bg-emerald-700/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-300">
-                <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="verify-status-pill inline-flex items-center rounded-full border border-emerald-600/10 bg-emerald-700/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-300">
+                <span className="verify-status-pill-dot mr-1.5 h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 Active
               </span>
             ) : row.monospace ? (
-              <span className="font-mono text-xs font-semibold tracking-wider bg-[#38bdf8]/5 border border-[#38bdf8]/10 rounded px-2 py-0.5 text-white/85">
+              <span className="verify-details-mono font-mono text-xs font-semibold tracking-wider bg-[#38bdf8]/5 border border-[#38bdf8]/10 rounded px-2 py-0.5 text-white/85">
                 {row.value}
               </span>
             ) : (
@@ -227,33 +227,29 @@ function VerifyContent() {
       ];
 
       return (
-        <div className="space-y-6">
-          <div className="relative overflow-hidden rounded-2xl border border-[#38bdf8]/10 bg-gradient-to-br from-[#0f172a] to-[#020617] p-6 text-white shadow-[0_40px_80px_rgba(0,0,0,0.8)] backdrop-blur-sm">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-start gap-4">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/5 text-[#38bdf8] shadow-sm">
-                  <ShieldCheck className="h-6 w-6" />
-                </div>
-                <div>
-                  <h3 className="playfair text-xl sm:text-2xl font-bold text-white">Document Authentic</h3>
-                  <p className="mt-1 text-xs text-white/60 dmsans font-light">
-                    This document is verified and officially registered in the GDA-DVS registry.
-                  </p>
-                </div>
+        <div className="verify-result verify-result--authentic">
+          <div className="verify-result__hero">
+            <div className="verify-result__hero-main">
+              <div className="verify-result__icon">
+                <ShieldCheck aria-hidden />
               </div>
-              <span className="self-start sm:self-center rounded-full bg-gradient-to-r from-[#1e40af] to-[#38bdf8] px-3.5 py-1.5 text-[9px] font-bold uppercase tracking-widest text-white shadow-[0_6px_20px_rgba(30,64,175,0.2)] dmsans">
-                Verified System Lock
-              </span>
+              <div>
+                <h3 className="verify-result__title">Document Authentic</h3>
+                <p className="verify-result__subtitle">
+                  This document is verified and officially registered in the GDA-DVS registry.
+                </p>
+              </div>
             </div>
+            <span className="verify-result__badge">Verified</span>
           </div>
 
-          <div className="rounded-3xl border border-[#38bdf8]/10 bg-[#0f172a]/95 p-4 shadow-[0_40px_80px_rgba(0,0,0,0.4)]">
+          <div className="verify-result__panel">
             {renderRows(rows)}
 
             <button
               type="button"
               onClick={resetVerification}
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#1e40af] to-[#1e3a8a] px-5 py-4 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.01] shadow-[0_10px_30px_rgba(30,64,175,0.2)] playfair"
+              className="verify-result__cta mt-6"
             >
               Verify Another Document
             </button>
@@ -262,51 +258,51 @@ function VerifyContent() {
       );
     }
 
-    // Invalid Status
+    const queriedId = formatResult(documentId) || result.documentId;
+
     return (
-      <div className="space-y-6">
-        <div className="relative overflow-hidden rounded-2xl border border-red-500/20 bg-gradient-to-br from-[#7F1D1D] to-[#450A0A] p-6 text-white shadow-[0_30px_60px_rgba(0,0,0,0.6)] backdrop-blur-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-start gap-4">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10 text-red-400">
-                <XCircle className="h-6 w-6" />
-              </div>
-              <div>
-                <h3 className="playfair text-xl sm:text-2xl font-bold text-white">Record Not Found</h3>
-                <p className="mt-1 text-xs text-white/60 dmsans font-light">
-                  No match was found in the official verification system.
-                </p>
-              </div>
+      <div className="verify-result verify-result--invalid">
+        <div className="verify-result__hero">
+          <div className="verify-result__hero-main">
+            <div className="verify-result__icon" aria-hidden>
+              <XCircle />
             </div>
-            <span className="self-start sm:self-center rounded-full bg-red-650 px-3.5 py-1.5 text-[9px] font-bold uppercase tracking-widest text-white shadow-md dmsans">
-              Invalid Entry
-            </span>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-red-500/10 bg-red-500/5 p-6 space-y-4 backdrop-blur-sm">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" />
-            <p className="text-sm leading-relaxed dmsans font-light text-red-200">
-              We could not find any active registry records corresponding to the submitted Document ID. Please double check characters or spacing formats.
-            </p>
-          </div>
-
-          <div className="rounded-xl border border-red-500/10 bg-red-500/5 p-4">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-400" />
-              <p className="text-xs leading-relaxed dmsans font-light text-red-300">
-                Warning: If this document has been presented to you as a certified original GDA certificate or land deed, it might be fabricated. Report suspicious documents to legal authorities immediately.
+            <div>
+              <h3 className="verify-result__title">Not Found in Registry</h3>
+              <p className="verify-result__subtitle">
+                This Document ID is not registered or has not been approved for public verification in GDA-DVS.
               </p>
             </div>
           </div>
+          <span className="verify-result__badge">Unverified</span>
+        </div>
 
-          <button
-            type="button"
-            onClick={resetVerification}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0f172a] hover:bg-[#1e293b] border border-white/10 px-5 py-4 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 shadow-md playfair"
-          >
-            Try Again
+        <div className="verify-result__panel">
+          {queriedId ? (
+            <div className="verify-result__id-block">
+              <span className="verify-result__id-label">Submitted ID</span>
+              {queriedId}
+            </div>
+          ) : null}
+
+          <p className="verify-result__message">
+            <AlertCircle aria-hidden />
+            <span>
+              No matching record exists for this ID. Check for typos, extra spaces, or confirm the format{" "}
+              <strong className="font-semibold">GDA-[DEPT]-[YEAR]-[CODE]</strong> before trying again.
+            </span>
+          </p>
+
+          <div className="verify-result__alert" role="note">
+            <AlertTriangle aria-hidden />
+            <span>
+              <strong className="font-semibold">Security notice:</strong> If someone presented this as an official GDA
+              certificate or land record, treat it with caution and report suspected forgery to the relevant authorities.
+            </span>
+          </div>
+
+          <button type="button" onClick={resetVerification} className="verify-result__cta">
+            Verify Another Document
           </button>
         </div>
       </div>
