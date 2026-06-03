@@ -354,7 +354,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${isDesktopOpen ? "lg:pl-[260px]" : "lg:pl-[80px]"}`}>
 
           {/* Page Content */}
-          <main className="flex-1 flex flex-col relative z-10 w-full">
+          <main className="flex-1 flex flex-col w-full">
             {/* Global Admin Header */}
             <div className="sticky top-0 z-20 w-full border-b border-white/[0.06] bg-[#020617]/70 backdrop-blur-2xl">
               <div className="mx-auto w-full max-w-[1800px] px-3 sm:px-6 py-3">

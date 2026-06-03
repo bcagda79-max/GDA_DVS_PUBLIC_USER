@@ -22,6 +22,7 @@ import { BackgroundPaths } from "@/components/ui/background-paths";
 import { LoadingState } from "@/components/ui/loading-state";
 import { cn } from "@/lib/utils";
 import type { PointerEvent as ReactPointerEvent } from "react";
+import { SignatureModal } from "./signature-modal";
 
 type SignatureStamp = {
   id: string;
@@ -58,6 +59,7 @@ function ESignatureContent() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [selectedPdfFile, setSelectedPdfFile] = useState<File | null>(null);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
   const [generatedPdfBytes, setGeneratedPdfBytes] = useState<ArrayBuffer | null>(null);
   const [downloadName, setDownloadName] = useState("signed-document.pdf");
   const [signedDownloadUrl, setSignedDownloadUrl] = useState<string | null>(null);
@@ -673,9 +675,9 @@ function ESignatureContent() {
                 </div>
               </div>
               <div className="p-5 space-y-4">
-                <label
-                  htmlFor="sig-upload"
-                  className="flex items-center justify-between p-4 rounded-xl border border-white/5 bg-[#020617]/40 hover:bg-[#020617]/60 hover:border-[#38bdf8]/30 transition-all cursor-pointer group"
+                <button
+                  onClick={() => setIsSignatureModalOpen(true)}
+                  className="w-full flex items-center justify-between p-4 rounded-xl border border-white/5 bg-[#020617]/40 hover:bg-[#020617]/60 hover:border-[#38bdf8]/30 transition-all cursor-pointer group"
                 >
                   <div className="flex items-center gap-3">
                     <div className="h-8 w-8 flex items-center justify-center rounded-lg bg-white/5 border border-white/10 group-hover:border-[#38bdf8]/40 transition-colors">
@@ -684,8 +686,7 @@ function ESignatureContent() {
                     <span className="dmsans text-[10px] font-black text-white/50 uppercase tracking-widest group-hover:text-white/80 transition-colors">Add Signature</span>
                   </div>
                   <div className="h-5 w-5 rounded-full border border-white/10 flex items-center justify-center text-[10px] text-white/20 group-hover:border-[#38bdf8]/40 group-hover:text-[#38bdf8] transition-all">+</div>
-                  <input id="sig-upload" type="file" className="hidden" accept="image/*" onChange={(e) => handleSignatureSelect(e.target.files?.[0] || null)} />
-                </label>
+                </button>
 
                 <AnimatePresence mode="wait">
                   {activeSigId && (
@@ -896,6 +897,11 @@ function ESignatureContent() {
           </motion.div>
         </div>
       </div>
+      <SignatureModal 
+        isOpen={isSignatureModalOpen} 
+        onClose={() => setIsSignatureModalOpen(false)} 
+        onSelect={handleSignatureSelect} 
+      />
     </div>
   );
 }
