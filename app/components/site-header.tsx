@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { AuthButton } from "./auth-button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export function SiteHeader() {
@@ -43,7 +42,6 @@ export function SiteHeader() {
 
         <div className="flex-shrink-0 flex items-center gap-3">
           <ThemeToggle />
-          <AuthButton />
         </div>
 
       </div>

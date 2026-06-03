@@ -1,58 +1,20 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { getSupabaseClient } from "../lib/supabaseClient";
-import { OfficerAppbar } from "@/components/ui/officer-appbar";
-// Removed public Generate button; ArrowRight icon no longer needed
 import { BackgroundPaths } from "@/components/ui/background-paths";
 import { ScanLine, ArrowRight, ShieldCheck } from "lucide-react";
 import { Footer } from "@/components/ui/footer";
 import { GetInTouch } from "@/components/ui/get-in-touch";
 
 export default function Home() {
-  const router = useRouter();
-  const supabase = getSupabaseClient();
-  const [checkingAuth, setCheckingAuth] = useState(true);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
   const [stats, setStats] = useState<{ value: string; label: string }[]>([
     { value: "10,000+", label: "Documents Authenticated" },
     { value: "15+", label: "Government Departments" },
     { value: "100%", label: "Verification Accuracy" },
   ]);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const { data } = await supabase.auth.getUser();
-        const user = data?.user ?? null;
-        if (!user) {
-          setCheckingAuth(false);
-          return;
-        }
-        setUserEmail(user.email ?? null);
-        const res = await fetch(`/api/access/context?userId=${user.id}`);
-        const body = await res.json().catch(() => null);
-        if (body?.found) {
-          if (body.isAdmin) {
-            router.replace("/admin");
-            return;
-          }
-          if (body.canGenerate) {
-            router.replace("/home");
-            return;
-          }
-        }
-      } catch (e) {
-        // ignore and show public landing
-      } finally {
-        setCheckingAuth(false);
-      }
-    })();
-  }, [router, supabase]);
 
   useEffect(() => {
     let mounted = true;
@@ -81,12 +43,6 @@ export default function Home() {
     <div className="min-h-screen bg-[#020617] text-[var(--color-text)] overflow-x-hidden">
       {/* HERO SECTION */}
       <section className="relative flex min-h-[100svh] items-center justify-center overflow-hidden">
-        {checkingAuth && (
-          <div className="absolute top-0 left-0 right-0">
-            <OfficerAppbar email={userEmail ?? ""} active="home" />
-          </div>
-        )}
-
         {/* Background layers */}
         <BackgroundPaths mode="background" className="" />
 
