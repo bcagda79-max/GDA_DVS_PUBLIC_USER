@@ -384,9 +384,13 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                   {/* Right: controls */}
                   <div className="flex items-center gap-2">
                     <ThemeToggle />
-                    <div className="hidden sm:flex h-9 w-9 rounded-xl bg-white/[0.03] border border-white/[0.06] items-center justify-center text-white/60">
+                    <button 
+                      onClick={() => window.location.reload()}
+                      aria-label="Refresh Page"
+                      className="hidden sm:flex h-9 w-9 rounded-xl bg-white/[0.03] border border-white/[0.06] items-center justify-center text-white/60 hover:bg-white/[0.08] hover:text-white transition-all active:scale-95 cursor-pointer"
+                    >
                       <Zap className="h-4 w-4 text-[#38bdf8]/70" />
-                    </div>
+                    </button>
                   </div>
 
                 </div>

@@ -14,7 +14,8 @@ export type ProcessedDocument = {
 
 type DocumentKind = "pdf" | "docx";
 
-const departmentCodes = {
+// Known department codes
+const knownDepartmentCodes: Record<string, string> = {
   BCA: "BCA",
   Admin: "ADM",
   Administration: "SADM",
@@ -22,13 +23,24 @@ const departmentCodes = {
   Tourism: "TOUR",
   Accounts: "ACC",
   General: "GEN",
-} as const;
+};
 
-export type Department = keyof typeof departmentCodes;
+export type Department = string;
 
-export const generateDocumentId = (department: Department) => {
+/**
+ * Derives a short barcode prefix from any department name.
+ * Uses the known map first, otherwise takes first 3 uppercase letters.
+ */
+const getDeptCode = (department: string): string => {
+  if (knownDepartmentCodes[department]) return knownDepartmentCodes[department];
+  // Take first 3 alphanumeric characters, uppercase
+  const code = department.replace(/[^a-zA-Z0-9]/g, "").slice(0, 3).toUpperCase();
+  return code || "GDA";
+};
+
+export const generateDocumentId = (department: string) => {
   const random = Math.random().toString(36).slice(2, 6).toUpperCase();
-  return `GDA-${departmentCodes[department]}-${new Date().getFullYear()}-${random}`;
+  return `GDA-${getDeptCode(department)}-${new Date().getFullYear()}-${random}`;
 };
 
 export const getFileExtension = (fileName: string) => {

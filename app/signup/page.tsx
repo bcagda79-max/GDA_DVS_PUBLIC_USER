@@ -21,17 +21,27 @@ export default function SignUpPage() {
   const [designation, setDesignation] = useState("");
   const [department, setDepartment] = useState("BCA");
   const [customDepartment, setCustomDepartment] = useState("");
+  const [departments, setDepartments] = useState<string[]>(["BCA", "Administration", "Tourism", "Accounts", "Technical"]);
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
   useEffect(() => {
-    if (!feedback) {
-      return;
-    }
-
+    if (!feedback) return;
     const timer = window.setTimeout(() => setFeedback(null), 5500);
     return () => window.clearTimeout(timer);
   }, [feedback]);
+
+  // Fetch all departments (built-in + custom saved by admin)
+  useEffect(() => {
+    fetch(`/api/departments?_t=${Date.now()}`)
+      .then(r => r.json())
+      .then(body => {
+        if (body.departments?.length) {
+          setDepartments([...body.departments, "Any Other"]);
+        }
+      })
+      .catch(() => {}); // fallback to defaults on error
+  }, []);
 
   async function handleSignUp(e: React.FormEvent) {
     e.preventDefault();
@@ -212,12 +222,9 @@ export default function SignUpPage() {
                         onChange={(e) => setDepartment(e.target.value)}
                         className="w-full appearance-none rounded-2xl border border-white/5 bg-[#0f172a] px-4 py-3.5 pl-11 text-sm text-white outline-none transition duration-300 focus:border-[#38bdf8]/30 focus:shadow-[0_0_20px_rgba(56,189,248,0.05)]"
                       >
-                        <option value="BCA">BCA</option>
-                        <option value="Administration">Administration</option>
-                        <option value="Tourism">Tourism</option>
-                        <option value="Accounts">Accounts</option>
-                        <option value="Technical">Technical</option>
-                        <option value="Any Other">Any Other</option>
+                        {departments.map((d) => (
+                          <option key={d} value={d}>{d}</option>
+                        ))}
                       </select>
                     </div>
                     {department === "Any Other" && (

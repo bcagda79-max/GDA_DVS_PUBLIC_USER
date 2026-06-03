@@ -36,20 +36,9 @@ export function applyTheme(mode: ThemeMode) {
   }
 }
 
-export function ThemeBootstrap() {
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY) as ThemeMode | null;
-      if (saved === "light" || saved === "dark") applyTheme(saved);
-    } catch {
-      // ignore
-    }
-  }, []);
-  return null;
-}
-
 export function ThemeToggle({ className }: { className?: string }) {
-  const [mode, setMode] = useState<ThemeMode>("dark");
+  // Start with light for SSR. Client will correct it instantly if mounted.
+  const [mode, setMode] = useState<ThemeMode>("light");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -57,9 +46,12 @@ export function ThemeToggle({ className }: { className?: string }) {
       const saved = localStorage.getItem(STORAGE_KEY) as ThemeMode | null;
       if (saved === "light" || saved === "dark") {
         setMode(saved);
+      } else {
+        const sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        setMode(sysDark ? "dark" : "light");
       }
     } catch {
-      // ignore
+      setMode("light");
     }
     setMounted(true);
   }, []);

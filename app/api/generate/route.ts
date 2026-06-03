@@ -8,18 +8,19 @@ import { getOfficerContextByUserId } from "@/lib/officer-access";
 
 export const runtime = "nodejs";
 
-const defaultDepartment: Department = "BCA";
+const defaultDepartment = "BCA";
 const barcodeBucket = "documents";
 
-const validDepartments: Record<Department, true> = {
-  BCA: true,
-  Admin: true,
-  Administration: true,
-  Technical: true,
-  Tourism: true,
-  Accounts: true,
-  General: true,
-};
+/** Persist a new custom department name if it's not a built-in */
+async function saveCustomDepartmentIfNew(supabaseAdmin: any, name: string) {
+  try {
+    const builtins = ["BCA", "Administration", "Technical", "Tourism", "Accounts", "Admin", "General"];
+    if (builtins.includes(name)) return;
+    await supabaseAdmin.from("departments").upsert({ name }, { onConflict: "name", ignoreDuplicates: true });
+  } catch (e) {
+    console.error("Failed to save custom department:", e);
+  }
+}
 
 const buildStoragePath = (documentId: string, fileName: string) => {
   const extension = fileName.toLowerCase().endsWith(".pdf") ? "pdf" : "docx";
@@ -35,11 +36,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Please upload a PDF or DOCX file." }, { status: 400 });
     }
 
+    // Accept any department string — no whitelist restriction
     const departmentValue = formData.get("department");
-    const department =
-      typeof departmentValue === "string" && departmentValue in validDepartments
-        ? (departmentValue as Department)
-        : defaultDepartment;
+    const department = typeof departmentValue === "string" && departmentValue.trim()
+      ? departmentValue.trim()
+      : defaultDepartment;
 
     const processedBy = String(formData.get("processedBy") ?? "").trim();
 
@@ -62,6 +63,9 @@ export async function POST(request: Request) {
         { status: 500 },
       );
     }
+
+    // Save new custom department to DB so it appears in dropdowns next time
+    await saveCustomDepartmentIfNew(supabaseAdmin, department);
 
     // Store the full processed file in Supabase storage so the complete
     // stamped document can be retrieved later (admin-only download).

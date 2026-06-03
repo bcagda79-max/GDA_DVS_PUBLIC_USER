@@ -6,7 +6,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { SiteHeader } from "./site-header";
 import { getSupabaseClient } from "../../lib/supabaseClient";
 import { LoadingState } from "@/components/ui/loading-state";
-import { ThemeBootstrap } from "@/components/ui/theme-toggle";
 
 const LAST_ACTIVE_KEY = "gdav_last_active";
 const SESSION_IDLE_MS = 2 * 60 * 60 * 1000; // 2 hours
@@ -56,7 +55,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
       activityRef.current = Date.now();
       try {
         localStorage.setItem(LAST_ACTIVE_KEY, String(activityRef.current));
-      } catch {}
+      } catch { }
     }
 
     const events = ["mousemove", "keydown", "touchstart", "visibilitychange"] as const;
@@ -66,7 +65,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
     const onBeforeUnload = () => {
       try {
         localStorage.setItem(LAST_ACTIVE_KEY, String(activityRef.current));
-      } catch {}
+      } catch { }
     };
     window.addEventListener("beforeunload", onBeforeUnload);
 
@@ -79,12 +78,11 @@ export function SiteShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)]">
-      <ThemeBootstrap />
       {!hasCustomHeader && <SiteHeader />}
 
       {/* Polished full-screen loader while checking session on site open */}
       {checkingSession ? (
-        <LoadingState title="Restoring Workspace" subtitle="Synchronizing your session with GDA secure cloud..." />
+        <LoadingState title="Loading" subtitle="Checking Your Session..." />
       ) : (
         <main className={!hasCustomHeader ? "pt-[68px] sm:pt-[72px]" : ""}>{children}</main>
       )}

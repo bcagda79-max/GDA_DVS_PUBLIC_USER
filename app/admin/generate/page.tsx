@@ -29,7 +29,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import type { ChangeEvent, DragEvent, FormEvent } from "react";
 
-type Department = "BCA" | "Administration" | "Tourism" | "Accounts" | "Technical" | "Any Other";
+type Department = string;
 
 type GeneratedDocument = {
   id: string;
@@ -41,9 +41,7 @@ type GeneratedDocument = {
   storagePath: string;
 };
 
-const departments: Department[] = [
-  "BCA", "Administration", "Tourism", "Accounts", "Technical", "Any Other",
-];
+const BUILTIN_DEPARTMENTS = ["BCA", "Administration", "Tourism", "Accounts", "Technical"];
 
 const initialIssueDate = () => {
   const today = new Date();
@@ -70,6 +68,7 @@ export default function AdminGeneratePage() {
     expiryDate: "",
   });
   const [customDepartment, setCustomDepartment] = useState("");
+  const [departments, setDepartments] = useState<string[]>(BUILTIN_DEPARTMENTS);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -127,6 +126,19 @@ export default function AdminGeneratePage() {
         // Use officer metadata or context-provided department. Admin can choose any department.
         const userDept = data.user.user_metadata?.department || body.department || "Administration";
         setForm(f => ({ ...f, department: userDept as Department }));
+
+        // Load departments (built-ins + any custom ones saved previously)
+        try {
+          const deptRes = await fetch(`/api/departments?_t=${Date.now()}`);
+          const deptBody = await deptRes.json();
+          if (deptBody.departments?.length) {
+            setDepartments([...deptBody.departments, "Any Other"]);
+          } else {
+            setDepartments([...BUILTIN_DEPARTMENTS, "Any Other"]);
+          }
+        } catch {
+          setDepartments([...BUILTIN_DEPARTMENTS, "Any Other"]);
+        }
       } catch (e) {
         router.replace("/signin");
       } finally {
