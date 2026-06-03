@@ -234,6 +234,7 @@ export default function AboutPage() {
                 src="/gda_logo.png"
                 alt="GDA Official Logo"
                 fill
+                sizes="160px"
                 className="object-contain"
               />
             </div>
