@@ -116,7 +116,7 @@ export default function Home() {
             }}
             className="mb-2"
           >
-            <div className="playfair text-6xl sm:text-7xl md:text-8xl lg:text-[96px] leading-[1.05] font-bold">
+            <div className="playfair text-[2.6rem] xs:text-5xl sm:text-7xl md:text-8xl lg:text-[96px] leading-[1.05] font-bold">
               <motion.span
                 variants={{ hidden: { y: 60, opacity: 0 }, show: { y: 0, opacity: 1, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } } }}
                 className="block text-white text-glow-white"

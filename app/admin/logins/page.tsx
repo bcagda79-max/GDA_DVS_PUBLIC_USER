@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getSupabaseClient } from "../../../lib/supabaseClient";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
-import { 
-  Activity, Monitor, Smartphone, Globe, Clock, ShieldCheck, 
+import {
+  Activity, Monitor, Smartphone, Globe, Clock, ShieldCheck,
   MapPin, Fingerprint, Database, CheckCircle2, XCircle, User, X,
   Search, Filter, ChevronRight, Cpu, Network, Shield
 } from "lucide-react";
@@ -48,7 +48,7 @@ export default function AdminLoginsPage() {
         const res = await fetch(`/api/admin/dashboard?userId=${user.id}`);
         const body = await res.json();
         if (!res.ok) throw new Error(body?.error ?? "Failed");
-        
+
         const loginHistory = body.loginHistory ?? [];
         setLogins(loginHistory);
         if (loginHistory.length > 0) {
@@ -64,36 +64,36 @@ export default function AdminLoginsPage() {
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1, 
-      transition: { 
+    visible: {
+      opacity: 1,
+      transition: {
         staggerChildren: 0.05,
         delayChildren: 0.1
-      } 
+      }
     }
   };
 
   const itemVariants: Variants = {
     hidden: { opacity: 0, y: 15 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      transition: { 
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
         duration: 0.5,
         ease: [0.16, 1, 0.3, 1]
-      } 
+      }
     }
   };
 
   if (loading) {
-    return <LoadingState title="Analyzing Security Logs" subtitle="Syncing with GDA authentication servers..." />;
+    return <LoadingState title="Loading" subtitle="Feching Login Details..." />;
   }
 
   const filteredLogins = logins.filter(entry => {
-    const matchesSearch = 
+    const matchesSearch =
       (entry.officerName?.toLowerCase() || entry.full_name?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
       (entry.email?.toLowerCase() || "").includes(searchQuery.toLowerCase());
-    
+
     if (!matchesSearch) return false;
 
     if (timeFilter === "all") return true;
@@ -102,10 +102,10 @@ export default function AdminLoginsPage() {
     today.setHours(0, 0, 0, 0);
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
-    
+
     if (timeFilter === "today") return entryDate >= today;
     if (timeFilter === "yesterday") return entryDate >= yesterday && entryDate < today;
-    
+
     return true;
   });
 
@@ -130,7 +130,7 @@ export default function AdminLoginsPage() {
       <div className="flex flex-col h-full relative">
         {/* Mobile Close Button */}
         {isMobile && (
-          <button 
+          <button
             onClick={() => setShowMobileModal(false)}
             className="absolute -right-1 -top-1 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/60 backdrop-blur-md transition-all hover:bg-white/10 hover:text-white"
           >
@@ -161,8 +161,8 @@ export default function AdminLoginsPage() {
           </div>
           <div className={cn(
             "inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-[10px] font-bold uppercase tracking-[0.15em] sm:self-center",
-            isSuccess 
-              ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400" 
+            isSuccess
+              ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
               : "border-rose-500/20 bg-rose-500/10 text-rose-400"
           )}>
             {isSuccess ? <ShieldCheck className="h-3.5 w-3.5" /> : <XCircle className="h-3.5 w-3.5" />}
@@ -173,7 +173,7 @@ export default function AdminLoginsPage() {
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto pr-2 admin-scrollbar">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            
+
             {/* Metadata Card: Primary Details */}
             <div className="group rounded-2xl border border-white/5 bg-white/[0.02] p-5 transition-all hover:border-[#38bdf8]/20 hover:bg-white/[0.04]">
               <div className="mb-4 flex items-center gap-2 text-[#38bdf8]/60">
@@ -264,9 +264,9 @@ export default function AdminLoginsPage() {
         {/* Background Animation Layers */}
         <BackgroundPaths mode="background" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/50 to-[#020617] pointer-events-none" />
-        
+
         <div className="relative z-10 mx-auto max-w-[1600px] px-4 pt-4 pb-2 sm:px-6 lg:px-8">
-          
+
           {/* Header Section */}
           <div className="mb-4 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <motion.div
@@ -286,7 +286,7 @@ export default function AdminLoginsPage() {
               </p>
             </motion.div>
 
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
@@ -295,7 +295,7 @@ export default function AdminLoginsPage() {
               {/* Search */}
               <div className="relative group">
                 <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/20 transition-colors group-focus-within:text-[#38bdf8]" />
-                <input 
+                <input
                   type="text"
                   placeholder="Search email, IP, or city..."
                   value={searchQuery}
@@ -312,8 +312,8 @@ export default function AdminLoginsPage() {
                     onClick={() => setTimeFilter(f)}
                     className={cn(
                       "h-full rounded-xl px-4 dmsans text-[10px] font-bold uppercase tracking-wider transition-all duration-300",
-                      timeFilter === f 
-                        ? "bg-[#38bdf8] text-[#020617] shadow-[0_4px_12px_rgba(56,189,248,0.3)]" 
+                      timeFilter === f
+                        ? "bg-[#38bdf8] text-[#020617] shadow-[0_4px_12px_rgba(56,189,248,0.3)]"
                         : "text-white/40 hover:text-white/80"
                     )}
                   >
@@ -326,9 +326,9 @@ export default function AdminLoginsPage() {
 
           {/* Main Dashboard Grid */}
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[400px_1fr] xl:grid-cols-[450px_1fr]">
-            
+
             {/* Telemetry Stream (Left) */}
-            <motion.section 
+            <motion.section
               variants={containerVariants}
               initial="hidden"
               animate="visible"
@@ -348,7 +348,7 @@ export default function AdminLoginsPage() {
                     filteredLogins.map((entry) => {
                       const isSelected = selected?.id === entry.id;
                       const isSuccess = entry.login_status?.toLowerCase() === "success" || entry.login_status?.toLowerCase() === "granted";
-                      
+
                       return (
                         <motion.button
                           key={entry.id}
@@ -360,18 +360,18 @@ export default function AdminLoginsPage() {
                           }}
                           className={cn(
                             "group relative w-full rounded-2xl border p-4 text-left transition-all duration-500",
-                            isSelected 
-                              ? "border-[#38bdf8]/40 bg-[#38bdf8]/5 shadow-[0_8px_30px_rgba(0,0,0,0.3)]" 
+                            isSelected
+                              ? "border-[#38bdf8]/40 bg-[#38bdf8]/5 shadow-[0_8px_30px_rgba(0,0,0,0.3)]"
                               : "border-white/5 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]"
                           )}
                         >
                           {isSelected && (
-                            <motion.div 
+                            <motion.div
                               layoutId="active-pill"
                               className="absolute -left-px top-1/2 -translate-y-1/2 h-8 w-[3px] rounded-r-full bg-[#38bdf8]"
                             />
                           )}
-                          
+
                           <div className="mb-2 flex items-center justify-between gap-3">
                             <h4 className={cn(
                               "dmsans text-sm font-semibold transition-colors truncate",
@@ -386,7 +386,7 @@ export default function AdminLoginsPage() {
                           </div>
 
                           <p className="dmsans mb-4 truncate text-[11px] text-white/30">{entry.email}</p>
-                          
+
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
                               <div className="flex items-center gap-1.5 text-[9px] font-bold text-white/40 uppercase tracking-tighter">
@@ -407,7 +407,7 @@ export default function AdminLoginsPage() {
                       );
                     })
                   ) : (
-                    <motion.div 
+                    <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       className="flex h-full flex-col items-center justify-center py-20 text-center"
@@ -421,7 +421,7 @@ export default function AdminLoginsPage() {
             </motion.section>
 
             {/* Analysis Panel (Right) */}
-            <motion.section 
+            <motion.section
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
@@ -437,7 +437,7 @@ export default function AdminLoginsPage() {
       {/* Mobile Telemetry Modal */}
       <AnimatePresence>
         {showMobileModal && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

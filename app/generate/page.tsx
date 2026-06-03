@@ -239,7 +239,7 @@ export default function GenerateDocumentPage() {
     }
   };
 
-  if (authChecking) return <LoadingState title="Secure Terminal" subtitle="Authenticating generation credentials..." />;
+  if (authChecking) return <LoadingState title="Loading" subtitle="Fetching Barcode Generator" />;
 
   return (
     <>
@@ -367,10 +367,10 @@ export default function GenerateDocumentPage() {
 
                   <div className="space-y-2">
                     <label className="dmsans text-[10px] font-bold uppercase tracking-[0.2em] text-[#0EA5E9]/60">Authority Unit</label>
-                    <input 
+                    <input
                       readOnly
-                      value={form.department} 
-                      className="h-14 w-full rounded-2xl border border-white/10 bg-[#0f172a]/50 px-6 dmsans text-sm text-white/50 cursor-not-allowed appearance-none" 
+                      value={form.department}
+                      className="h-14 w-full rounded-2xl border border-white/10 bg-[#0f172a]/50 px-6 dmsans text-sm text-white/50 cursor-not-allowed appearance-none"
                     />
                   </div>
 

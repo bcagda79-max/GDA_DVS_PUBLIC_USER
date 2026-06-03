@@ -78,7 +78,7 @@ export default function ManageDocumentsPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Toggle failed");
-      
+
       setDocuments((prev) =>
         prev.map((d) => (d.id === doc.id ? { ...d, verified: newStatus } : d))
       );
@@ -99,7 +99,7 @@ export default function ManageDocumentsPage() {
   });
 
   if (loading) {
-    return <LoadingState title="Manage Documents" subtitle="Retrieving master document registry..." />;
+    return <LoadingState title="Loading" subtitle="Fetching Documents Details..." />;
   }
 
   return (
@@ -116,11 +116,10 @@ export default function ManageDocumentsPage() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className={`fixed top-6 right-6 z-50 flex items-center gap-3 rounded-2xl border backdrop-blur-xl px-5 py-3.5 shadow-2xl ${
-                feedback.type === "success"
-                  ? "border-emerald-500/20 bg-[#0f172a]/95"
-                  : "border-red-500/20 bg-[#0f172a]/95"
-              }`}
+              className={`fixed top-6 right-6 z-50 flex items-center gap-3 rounded-2xl border backdrop-blur-xl px-5 py-3.5 shadow-2xl ${feedback.type === "success"
+                ? "border-emerald-500/20 bg-[#0f172a]/95"
+                : "border-red-500/20 bg-[#0f172a]/95"
+                }`}
             >
               {feedback.type === "success" ? (
                 <CheckCircle2 className="h-4 w-4 text-emerald-400" />
@@ -240,11 +239,10 @@ export default function ManageDocumentsPage() {
                     <button
                       onClick={() => handleToggleVerification(doc)}
                       disabled={togglingId === doc.id}
-                      className={`inline-flex h-9 items-center gap-2 rounded-lg border px-4 text-[10px] font-bold uppercase tracking-wider transition-all duration-200 disabled:opacity-40 ${
-                        doc.verified 
-                          ? 'border-red-500/20 bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300'
-                          : 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 hover:text-emerald-300'
-                      }`}
+                      className={`inline-flex h-9 items-center gap-2 rounded-lg border px-4 text-[10px] font-bold uppercase tracking-wider transition-all duration-200 disabled:opacity-40 ${doc.verified
+                        ? 'border-red-500/20 bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300'
+                        : 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 hover:text-emerald-300'
+                        }`}
                     >
                       {togglingId === doc.id ? (
                         <span className="h-3 w-3 animate-spin rounded-full border-[1.5px] border-current border-r-transparent" />

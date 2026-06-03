@@ -96,7 +96,7 @@ export default function AdminPendingApplicationsPage() {
 
   const handleReject = async (doc: any) => {
     if (!confirm(`Are you sure you want to completely remove "${doc.title || doc.id}" from the system? This action cannot be undone.`)) return;
-    
+
     setRejectingId(doc.id);
     try {
       const res = await fetch("/api/admin/reject-document", {
@@ -106,7 +106,7 @@ export default function AdminPendingApplicationsPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to reject document.");
-      
+
       setPending((prev) => prev.filter((d) => d.id !== doc.id));
       setFeedback({ type: "success", message: "Document permanently removed." });
     } catch (err: any) {
@@ -125,7 +125,7 @@ export default function AdminPendingApplicationsPage() {
   });
 
   if (loading) {
-    return <LoadingState title="Pending Applications" subtitle="Retrieving forwarded documents for review..." />;
+    return <LoadingState title="Loading" subtitle="Fetching Pending Applications..." />;
   }
 
   return (
@@ -153,11 +153,10 @@ export default function AdminPendingApplicationsPage() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className={`fixed top-6 right-6 z-50 flex items-center gap-3 rounded-2xl border backdrop-blur-xl px-5 py-3.5 shadow-2xl ${
-                feedback.type === "success"
-                  ? "border-emerald-500/20 bg-[#0f172a]/95"
-                  : "border-red-500/20 bg-[#0f172a]/95"
-              }`}
+              className={`fixed top-6 right-6 z-50 flex items-center gap-3 rounded-2xl border backdrop-blur-xl px-5 py-3.5 shadow-2xl ${feedback.type === "success"
+                ? "border-emerald-500/20 bg-[#0f172a]/95"
+                : "border-red-500/20 bg-[#0f172a]/95"
+                }`}
             >
               {feedback.type === "success" ? (
                 <CheckCircle2 className="h-4 w-4 text-emerald-400" />

@@ -7,13 +7,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { LoadingState } from "@/components/ui/loading-state";
 import { BackgroundPaths } from "@/components/ui/background-paths";
 import { cn } from "@/lib/utils";
-import { 
-  Folder, 
-  FolderOpen, 
-  FileText, 
-  ArrowLeft, 
-  Eye, 
-  Clock, 
+import {
+  Folder,
+  FolderOpen,
+  FileText,
+  ArrowLeft,
+  Eye,
+  Clock,
   Database,
   ShieldCheck,
   Search,
@@ -32,10 +32,10 @@ export default function VaultPage() {
   const [loading, setLoading] = useState(true);
   const [documents, setDocuments] = useState<any[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
-  
+
   const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   const [previewingId, setPreviewingId] = useState<string | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
 
@@ -73,18 +73,18 @@ export default function VaultPage() {
 
   const filteredDocuments = useMemo(() => {
     if (!selectedDepartment) return [];
-    
+
     let docs = documents.filter(d => d.department === selectedDepartment);
-    
+
     const term = searchQuery.trim().toLowerCase();
     if (term) {
       docs = docs.filter(item =>
-        [item.id, item.title, item.recipient_name, item.processed_file_name].some(field => 
+        [item.id, item.title, item.recipient_name, item.processed_file_name].some(field =>
           String(field ?? "").toLowerCase().includes(term)
         )
       );
     }
-    
+
     return docs;
   }, [documents, selectedDepartment, searchQuery]);
 
@@ -94,13 +94,13 @@ export default function VaultPage() {
       setTimeout(() => setPreviewError(null), 3000);
       return;
     }
-    
+
     setPreviewingId(doc.id);
     try {
       const res = await fetch(`/api/admin/vault/preview?userId=${userId}&path=${encodeURIComponent(doc.storage_path)}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      
+
       window.open(data.url, "_blank");
     } catch (e: any) {
       setPreviewError("Preview generation failed.");
@@ -123,16 +123,16 @@ export default function VaultPage() {
   ];
 
   if (loading) {
-    return <LoadingState title="Accessing Vault" subtitle="Decrypting department repositories..." />;
+    return <LoadingState title="Loading" subtitle="Fetching Documents..." />;
   }
 
   return (
     <div className="relative min-h-screen w-full bg-[#020617] flex flex-col overflow-x-hidden">
       <BackgroundPaths mode="background" className="opacity-40" />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/60 to-[#020617] pointer-events-none" />
-      
+
       <div className="relative z-10 flex-1 flex flex-col mx-auto w-full max-w-[1600px] px-4 pt-6 pb-10 sm:px-6 lg:px-8">
-        
+
         {/* ═══ Error Notification ═══ */}
         <AnimatePresence>
           {previewError && (
@@ -165,7 +165,7 @@ export default function VaultPage() {
               <div className="mb-12">
                 <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
                   <div>
-                    <motion.div 
+                    <motion.div
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.2 }}
@@ -176,7 +176,7 @@ export default function VaultPage() {
                       </div>
                       <span className="dmsans text-[10px] font-bold uppercase tracking-[0.4em] text-[#38bdf8]">Archival Registry</span>
                     </motion.div>
-                    <motion.h1 
+                    <motion.h1
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.3 }}
@@ -184,7 +184,7 @@ export default function VaultPage() {
                     >
                       Central <span className="professional-gradient-text">Vault</span>
                     </motion.h1>
-                    <motion.p 
+                    <motion.p
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.4 }}
@@ -194,7 +194,7 @@ export default function VaultPage() {
                     </motion.p>
                   </div>
 
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 }}
@@ -267,11 +267,11 @@ export default function VaultPage() {
                         <div className="flex items-center gap-2">
                           <span className="dmsans text-[9px] font-bold uppercase tracking-[0.3em] text-white/20">Department Unit</span>
                         </div>
-                        
+
                         <div className="mt-6 pt-6 border-t border-white/[0.05] flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <FileText className="h-3.5 w-3.5 text-white/20" />
-                            <span className="dmsans text-[10px] font-bold text-white/40">Secure Repository</span>
+                            <span className="dmsans text-[10px] font-bold text-white/40">Files</span>
                           </div>
                           <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                         </div>
@@ -284,7 +284,7 @@ export default function VaultPage() {
               {/* Empty State */}
               {departments.length === 0 && (
                 <div className="flex-1 flex flex-col items-center justify-center py-32 text-center">
-                  <motion.div 
+                  <motion.div
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     className="relative mb-8"
@@ -316,7 +316,7 @@ export default function VaultPage() {
               {/* Toolbar Section */}
               <div className="mb-10 flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
                 <div className="flex items-center gap-6">
-                  <motion.button 
+                  <motion.button
                     whileHover={{ x: -4 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => { setSelectedDepartment(null); setSearchQuery(""); }}
@@ -338,7 +338,7 @@ export default function VaultPage() {
                 <div className="flex flex-col sm:flex-row items-center gap-4">
                   <div className="relative group w-full sm:w-80">
                     <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/20 transition-colors group-focus-within:text-[#38bdf8]" />
-                    <input 
+                    <input
                       type="text"
                       placeholder="Search archival records..."
                       value={searchQuery}
@@ -357,7 +357,7 @@ export default function VaultPage() {
               <div className="relative group flex-1">
                 {/* Decorative border glow */}
                 <div className="absolute -inset-[1px] bg-gradient-to-r from-white/0 via-white/[0.05] to-white/0 rounded-[2rem] pointer-events-none" />
-                
+
                 <div className="rounded-[2rem] border border-white/[0.08] bg-[#0f172a]/40 backdrop-blur-2xl overflow-hidden flex flex-col shadow-2xl">
                   <div className="overflow-x-auto custom-scrollbar">
                     <table className="w-full text-left min-w-[1000px]">

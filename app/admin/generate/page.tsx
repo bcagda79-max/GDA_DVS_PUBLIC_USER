@@ -117,13 +117,13 @@ export default function AdminGeneratePage() {
       try {
         const { data } = await supabase.auth.getUser();
         if (!data?.user) return router.replace("/signin");
-        
+
         const res = await fetch(`/api/access/context?userId=${data.user.id}`);
         const body = await res.json();
         if (!body.isAdmin) return router.replace(body.canGenerate ? "/generate" : "/pending");
-        
+
         setCurrentUserId(data.user.id);
-        
+
         // Use officer metadata or context-provided department. Admin can choose any department.
         const userDept = data.user.user_metadata?.department || body.department || "Administration";
         setForm(f => ({ ...f, department: userDept as Department }));
@@ -156,7 +156,7 @@ export default function AdminGeneratePage() {
       const payload = new FormData();
       const finalDepartment = form.department === "Any Other" ? customDepartment.trim() : form.department;
       if (!finalDepartment) throw new Error("Department is required.");
-      
+
       payload.append("file", selectedFile);
       payload.append("department", finalDepartment);
       payload.append("title", form.title);
@@ -172,7 +172,7 @@ export default function AdminGeneratePage() {
       const url = URL.createObjectURL(blob);
       const docId = res.headers.get("x-document-id") || "GDA-DVS-" + Math.random().toString(36).substr(2, 9).toUpperCase();
       const storagePath = res.headers.get("x-storage-path") || "";
-      
+
       setDownloadUrl(url);
       setDownloadName(res.headers.get("x-output-name") || selectedFile.name);
       setGeneratedDocument({ ...form, id: docId, storagePath });
@@ -183,7 +183,7 @@ export default function AdminGeneratePage() {
     }
   };
 
-  if (authChecking) return <LoadingState title="Secure Terminal" subtitle="Authenticating generation credentials..." />;
+  if (authChecking) return <LoadingState title="Loading" subtitle="Fetching Barcode Generation Tools..." />;
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-[#020617]">
@@ -191,7 +191,7 @@ export default function AdminGeneratePage() {
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/50 to-[#020617] pointer-events-none" />
 
       <div className="relative z-10 mx-auto max-w-[1600px] px-4 pt-4 pb-2 sm:px-6 lg:px-8">
-        
+
         {/* Header Section */}
         <div className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
@@ -221,17 +221,17 @@ export default function AdminGeneratePage() {
 
         {/* Workspace */}
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_450px]">
-          
+
           {/* Input Section */}
-          <motion.form 
-            initial={{ opacity: 0, y: 20 }} 
-            animate={{ opacity: 1, y: 0 }} 
+          <motion.form
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             onSubmit={handleSubmit}
             className="space-y-6"
           >
             <div className="rounded-[2.5rem] border border-white/5 bg-[#0F172A]/40 backdrop-blur-xl p-8 sm:p-10 shadow-2xl">
               <div className="grid gap-8 sm:grid-cols-2">
-                
+
                 {/* File Upload */}
                 <div className="sm:col-span-2">
                   <label className="dmsans mb-3 block text-[10px] font-bold uppercase tracking-[0.2em] text-[#0EA5E9]/60">Document Source</label>
@@ -251,7 +251,7 @@ export default function AdminGeneratePage() {
                       </button>
                     </div>
                   ) : (
-                    <label 
+                    <label
                       onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                       onDragLeave={() => setIsDragging(false)}
                       onDrop={(e) => { e.preventDefault(); setIsDragging(false); setSelectedFile(e.dataTransfer.files[0]); }}
@@ -271,22 +271,22 @@ export default function AdminGeneratePage() {
                 {/* Metadata Fields */}
                 <div className="space-y-2">
                   <label className="dmsans text-[10px] font-bold uppercase tracking-[0.2em] text-[#0EA5E9]/60">Credential Title</label>
-                  <input 
-                    required 
+                  <input
+                    required
                     value={form.title}
-                    onChange={e => setForm({...form, title: e.target.value})}
-                    className="h-14 w-full rounded-2xl border border-white/10 bg-white/5 px-6 dmsans text-sm text-white placeholder:text-white/20 focus:border-[#0EA5E9]/40 focus:outline-none focus:ring-1 focus:ring-[#0EA5E9]/40 transition-all" 
+                    onChange={e => setForm({ ...form, title: e.target.value })}
+                    className="h-14 w-full rounded-2xl border border-white/10 bg-white/5 px-6 dmsans text-sm text-white placeholder:text-white/20 focus:border-[#0EA5E9]/40 focus:outline-none focus:ring-1 focus:ring-[#0EA5E9]/40 transition-all"
                     placeholder="e.g. Land Allotment Order"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <label className="dmsans text-[10px] font-bold uppercase tracking-[0.2em] text-[#0EA5E9]/60">Recipient Identity</label>
-                  <input 
+                  <input
                     required
                     value={form.recipientName}
-                    onChange={e => setForm({...form, recipientName: e.target.value})}
-                    className="h-14 w-full rounded-2xl border border-white/10 bg-white/5 px-6 dmsans text-sm text-white placeholder:text-white/20 focus:border-[#0EA5E9]/40 focus:outline-none focus:ring-1 focus:ring-[#0EA5E9]/40 transition-all" 
+                    onChange={e => setForm({ ...form, recipientName: e.target.value })}
+                    className="h-14 w-full rounded-2xl border border-white/10 bg-white/5 px-6 dmsans text-sm text-white placeholder:text-white/20 focus:border-[#0EA5E9]/40 focus:outline-none focus:ring-1 focus:ring-[#0EA5E9]/40 transition-all"
                     placeholder="Full legal name"
                   />
                 </div>
@@ -295,18 +295,18 @@ export default function AdminGeneratePage() {
                   <label className="dmsans text-[10px] font-bold uppercase tracking-[0.2em] text-[#0EA5E9]/60">Issuance Date</label>
                   <div className="relative">
                     <CalendarDays className="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/20" />
-                    <input 
+                    <input
                       type="date"
                       value={form.issueDate}
-                      onChange={e => setForm({...form, issueDate: e.target.value})}
-                      className="h-14 w-full rounded-2xl border border-white/10 bg-white/5 pl-14 pr-6 dmsans text-sm text-white focus:border-[#0EA5E9]/40 focus:outline-none focus:ring-1 focus:ring-[#0EA5E9]/40 transition-all" 
+                      onChange={e => setForm({ ...form, issueDate: e.target.value })}
+                      className="h-14 w-full rounded-2xl border border-white/10 bg-white/5 pl-14 pr-6 dmsans text-sm text-white focus:border-[#0EA5E9]/40 focus:outline-none focus:ring-1 focus:ring-[#0EA5E9]/40 transition-all"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <label className="dmsans text-[10px] font-bold uppercase tracking-[0.2em] text-[#0EA5E9]/60">Authority Unit</label>
-                  <select value={form.department} onChange={(e) => setForm({...form, department: e.target.value as any})} className="h-14 w-full rounded-2xl border border-white/10 bg-[#0f172a] px-6 dmsans text-sm text-white appearance-none">
+                  <select value={form.department} onChange={(e) => setForm({ ...form, department: e.target.value as any })} className="h-14 w-full rounded-2xl border border-white/10 bg-[#0f172a] px-6 dmsans text-sm text-white appearance-none">
                     {departments.map((d) => <option key={d} value={d}>{d}</option>)}
                   </select>
                   {form.department === "Any Other" && (
@@ -321,8 +321,8 @@ export default function AdminGeneratePage() {
                 </div>
               </div>
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={isGenerating || !selectedFile}
                 className="group relative mt-4 h-16 w-full overflow-hidden rounded-[2rem] bg-[#0EA5E9] text-[#020617] transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:grayscale disabled:scale-100 shadow-[0_20px_50px_rgba(14,165,233,0.2)]"
               >
@@ -337,9 +337,9 @@ export default function AdminGeneratePage() {
           </motion.form>
 
           {/* Preview Section */}
-          <motion.aside 
-            initial={{ opacity: 0, x: 20 }} 
-            animate={{ opacity: 1, x: 0 }} 
+          <motion.aside
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
             className="flex flex-col h-full rounded-[2.5rem] border border-white/5 bg-[#0F172A]/40 backdrop-blur-xl p-8 shadow-2xl"
           >
             <div className="mb-8 border-b border-white/5 pb-8">
@@ -372,20 +372,20 @@ export default function AdminGeneratePage() {
 
                     <div className="space-y-3">
                       <div className="grid grid-cols-2 gap-3">
-                        <Link 
+                        <Link
                           href={`/admin/e-signature?documentId=${generatedDocument.id}&storagePath=${encodeURIComponent(generatedDocument.storagePath)}`}
                           className="flex h-14 items-center justify-center gap-2 rounded-2xl bg-emerald-500 text-white dmsans text-[11px] font-black uppercase tracking-widest transition-all hover:bg-emerald-400 shadow-[0_10px_20px_rgba(16,185,129,0.2)]"
                         >
                           <PenTool className="h-4 w-4" /> Go to E-Sign
                         </Link>
-                        <button 
+                        <button
                           onClick={() => window.open(downloadUrl || "", "_blank")}
                           className="flex h-14 items-center justify-center gap-2 rounded-2xl bg-white text-[#020617] dmsans text-[11px] font-black uppercase tracking-widest transition-all hover:bg-[#0EA5E9]"
                         >
                           <Eye className="h-4 w-4" /> Preview
                         </button>
                       </div>
-                      <button 
+                      <button
                         onClick={() => setGeneratedDocument(null)}
                         className="w-full h-12 rounded-2xl border border-white/10 bg-transparent dmsans text-[10px] font-bold uppercase tracking-widest text-white/50 transition-all hover:bg-white/5 hover:text-white"
                       >

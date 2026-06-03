@@ -99,7 +99,7 @@ export default function AdminPage() {
     return () => {
       try {
         document.body.removeChild(el);
-      } catch (e) {}
+      } catch (e) { }
       tooltipRef.current = null;
     };
   }, []);
@@ -303,7 +303,7 @@ export default function AdminPage() {
             <p className="text-[9px] font-bold uppercase tracking-[0.22em] text-[#38bdf8] dmsans">Registry Activity</p>
             <h3 className="mt-2 playfair text-lg font-bold text-white">Documents Generated — Last 12 months</h3>
           </div>
-          <div className="dmsans text-sm text-white/35 font-light">Total: <span className="font-bold text-[#38bdf8]">{series.reduce((a,b)=>a+b,0)}</span></div>
+          <div className="dmsans text-sm text-white/35 font-light">Total: <span className="font-bold text-[#38bdf8]">{series.reduce((a, b) => a + b, 0)}</span></div>
         </div>
 
         <svg
@@ -434,19 +434,19 @@ export default function AdminPage() {
         >
           <defs>
             <linearGradient id="line-grad" x1="0" x2="1">
-                <stop offset="0%" stopColor="#38bdf8" stopOpacity="1" />
+              <stop offset="0%" stopColor="#38bdf8" stopOpacity="1" />
               <stop offset="100%" stopColor="#1e40af" stopOpacity="1" />
             </linearGradient>
             <filter id="g-blur"><feGaussianBlur stdDeviation="8" /></filter>
           </defs>
           <g transform="translate(0,0)">
-                <path d={linePath} fill="none" stroke="rgba(56,189,248,0.06)" strokeWidth={14} strokeLinecap="round" strokeLinejoin="round" transform="translate(0,8)" />
+            <path d={linePath} fill="none" stroke="rgba(56,189,248,0.06)" strokeWidth={14} strokeLinecap="round" strokeLinejoin="round" transform="translate(0,8)" />
             <path d={linePath} fill="none" stroke="url(#line-grad)" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" />
             {series.map((v, i) => {
               const [x, y] = points[i].split(",").map(Number);
               return (
                 <g key={i}>
-                      <circle cx={x} cy={y} r={4} fill="#38bdf8" stroke="rgba(56,189,248,0.3)" strokeWidth={1} />
+                  <circle cx={x} cy={y} r={4} fill="#38bdf8" stroke="rgba(56,189,248,0.3)" strokeWidth={1} />
                 </g>
               );
             })}
@@ -541,7 +541,7 @@ export default function AdminPage() {
   };
 
   if (loading) {
-    return <LoadingState title="Initializing Admin Protocol" subtitle="Syncing GDA core intelligence..." />;
+    return <LoadingState title="Loading" subtitle="Fetching Data..." />;
   }
 
   return (
@@ -554,9 +554,9 @@ export default function AdminPage() {
           transform-style: preserve-3d;
         }
       `}</style>
-      
+
       <div className="bg-transparent px-3 sm:px-5 lg:px-8 pb-12 pt-4 perspective-1000 w-full overflow-x-hidden">
-        <motion.div 
+        <motion.div
           className="mx-auto max-w-7xl space-y-6"
           variants={containerVariants}
           initial="hidden"

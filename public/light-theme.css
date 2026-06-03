@@ -201,3 +201,46 @@ html[data-theme="light"] [role="button"] {
   accent-color: var(--lt-accent);
 }
 
+/* ─── Fix glass-card for light mode (Total Assets / Active Units cards) ─── */
+html[data-theme="light"] .glass-card {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 2px 12px rgba(37,99,235,0.07), 0 1px 3px rgba(0,0,0,0.04) !important;
+}
+
+html[data-theme="light"] .glass-card:hover {
+  background-color: #F0F5FF !important;
+  border-color: rgba(37, 99, 235, 0.25) !important;
+  box-shadow: 0 6px 24px rgba(37,99,235,0.12), 0 2px 6px rgba(0,0,0,0.06) !important;
+}
+
+/* ─── Global smooth arrow hover animation for buttons in light mode ─── */
+@keyframes lt-arrow-slide {
+  0%   { transform: translateX(0); opacity: 1; }
+  45%  { transform: translateX(6px); opacity: 0; }
+  46%  { transform: translateX(-6px); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes lt-btn-glow {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+html[data-theme="light"] a:hover svg.lucide-arrow-right,
+html[data-theme="light"] button:hover svg.lucide-arrow-right,
+html[data-theme="light"] [role="button"]:hover svg.lucide-arrow-right {
+  animation: lt-arrow-slide 0.5s ease forwards;
+}
+
+/* Solid blue buttons get a subtle shimmer sweep on hover */
+html[data-theme="light"] a[class*="bg-gradient"]:hover,
+html[data-theme="light"] button[class*="bg-gradient"]:hover,
+html[data-theme="light"] a[class*="bg-[#2563eb]"]:hover,
+html[data-theme="light"] button[class*="bg-[#2563eb]"]:hover,
+html[data-theme="light"] a[class*="bg-[#0ea5e9]"]:hover,
+html[data-theme="light"] button[class*="bg-[#0ea5e9]"]:hover {
+  filter: brightness(1.08);
+  transition: filter 0.35s ease, transform 0.25s ease, box-shadow 0.35s ease !important;
+}
+

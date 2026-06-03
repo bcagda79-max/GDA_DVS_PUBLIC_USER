@@ -40,7 +40,7 @@ const clamp = (value: number, min: number, max: number) => Math.max(min, Math.mi
 
 export default function AdminESignaturePage() {
   return (
-    <Suspense fallback={<LoadingState title="Secure Terminal" subtitle="Authenticating signing workspace..." />}>
+    <Suspense fallback={<LoadingState title="Loading" subtitle="Fetching E-Signature Workspace..." />}>
       <ESignatureContent />
     </Suspense>
   );
@@ -377,7 +377,7 @@ function ESignatureContent() {
 
     setActiveSigId(id);
     const stage = previewStageRef.current.getBoundingClientRect();
-    
+
     // Check if clicking the resize handle (bottom-right)
     const target = e.target as HTMLElement;
     if (target.dataset.resizeHandle) {
@@ -400,12 +400,12 @@ function ESignatureContent() {
 
   const handleStagePointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (!previewStageRef.current || !activeSigId) return;
-    
+
     if (isResizingSignature) {
       const deltaX = e.clientX - resizeStart.x;
       const sig = signatures.find(s => s.id === activeSigId);
       if (!sig) return;
-      
+
       const ratio = sig.height / sig.width;
       const nextWidth = clamp(resizeStart.width + deltaX, 40, 500);
       const nextHeight = nextWidth * ratio;
@@ -424,7 +424,7 @@ function ESignatureContent() {
     }
 
     if (!isDraggingSignature) return;
-    
+
     const stage = previewStageRef.current.getBoundingClientRect();
     const nextX = e.clientX - stage.left - signatureDragOffset.x;
     const nextY = e.clientY - stage.top - signatureDragOffset.y;
@@ -494,12 +494,12 @@ function ESignatureContent() {
         signedArray.byteOffset,
         signedArray.byteOffset + signedArray.byteLength
       ) as ArrayBuffer;
-      
+
       // Revoke old URL before setting new one
       if (signedDownloadUrl) {
         URL.revokeObjectURL(signedDownloadUrl);
       }
-      
+
       const signedBlob = new Blob([signedBuffer], { type: "application/pdf" });
       const nextUrl = URL.createObjectURL(signedBlob);
       setSignedDownloadUrl(nextUrl);
@@ -589,7 +589,7 @@ function ESignatureContent() {
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/60 to-[#020617] pointer-events-none" />
 
       <div className="relative z-10 flex-1 flex flex-col mx-auto w-full max-w-[1800px] px-4 sm:px-6 py-6 h-screen overflow-hidden">
-        
+
         {/* ═══ Header Section ═══ */}
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between mb-6 shrink-0">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
@@ -597,7 +597,7 @@ function ESignatureContent() {
               <div className="flex h-6 w-6 items-center justify-center rounded-md bg-[#38bdf8]/10 border border-[#38bdf8]/20">
                 <ShieldCheck className="h-3.5 w-3.5 text-[#38bdf8]" />
               </div>
-              <span className="dmsans text-[8px] font-black uppercase tracking-[0.4em] text-[#38bdf8]/80">Authenticated Workspace</span>
+              <span className="dmsans text-[8px] font-black uppercase tracking-[0.4em] text-[#38bdf8]/80"></span>
             </div>
             <h1 className="playfair text-2xl font-bold text-white sm:text-3xl">
               Digital <span className="professional-gradient-text">E-Signature</span>
@@ -612,7 +612,7 @@ function ESignatureContent() {
               <div className="flex flex-col">
                 <p className="dmsans text-[7px] font-bold uppercase tracking-widest text-white/30 leading-none mb-1">Document Status</p>
                 <p className="dmsans text-[10px] font-black text-white leading-none">
-                  {numPages ? `${numPages} Pages Loaded` : "Awaiting Protocol"}
+                  {numPages ? `${numPages} Pages Loaded` : "Awaiting "}
                 </p>
               </div>
             </div>
@@ -621,9 +621,9 @@ function ESignatureContent() {
 
         {/* ═══ Studio Layout ═══ */}
         <div className="flex-1 grid grid-cols-12 gap-6 min-h-0 overflow-hidden">
-          
+
           {/* ════ Sidebar (4/12) ════ */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             className="col-span-12 lg:col-span-4 xl:col-span-3 flex flex-col gap-5 overflow-y-auto custom-scrollbar pr-2 pb-6"
@@ -639,7 +639,7 @@ function ESignatureContent() {
                 </div>
               </div>
               <div className="p-5">
-                <label 
+                <label
                   htmlFor="pdf-upload"
                   className="group relative flex flex-col items-center justify-center gap-3 py-8 rounded-xl border-2 border-dashed border-white/5 bg-[#020617]/40 hover:bg-[#020617]/60 hover:border-[#38bdf8]/30 transition-all cursor-pointer overflow-hidden"
                 >
@@ -649,7 +649,7 @@ function ESignatureContent() {
                       {selectedPdfFile ? "Update Document" : "Import PDF"}
                     </span>
                     <span className="dmsans text-[8px] font-bold text-white/20 uppercase tracking-[0.2em] text-center px-4 truncate max-w-[200px]">
-                      {selectedPdfFile ? selectedPdfFile.name : "Secure PDF Protocol"}
+                      {selectedPdfFile ? selectedPdfFile.name : "BARCODED PDF"}
                     </span>
                   </div>
                   <input id="pdf-upload" type="file" className="hidden" accept="application/pdf" onChange={(e) => handlePdfSelect(e.target.files?.[0] || null)} />
@@ -673,7 +673,7 @@ function ESignatureContent() {
                 </div>
               </div>
               <div className="p-5 space-y-4">
-                <label 
+                <label
                   htmlFor="sig-upload"
                   className="flex items-center justify-between p-4 rounded-xl border border-white/5 bg-[#020617]/40 hover:bg-[#020617]/60 hover:border-[#38bdf8]/30 transition-all cursor-pointer group"
                 >
@@ -689,7 +689,7 @@ function ESignatureContent() {
 
                 <AnimatePresence mode="wait">
                   {activeSigId && (
-                    <motion.div 
+                    <motion.div
                       initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
                       className="p-4 rounded-xl bg-[#020617]/80 border border-[#38bdf8]/30 shadow-xl space-y-4"
                     >
@@ -739,7 +739,7 @@ function ESignatureContent() {
                     <div className="p-2 rounded-lg bg-[#38bdf8]/10">
                       <ScanSearch className="h-3.5 w-3.5 text-[#38bdf8]" />
                     </div>
-                    <span className="dmsans text-[10px] font-black text-white/60 uppercase tracking-widest">Page Registry</span>
+                    <span className="dmsans text-[10px] font-black text-white/60 uppercase tracking-widest">Pages</span>
                   </div>
                   <span className="dmsans text-[10px] font-black text-[#38bdf8] bg-[#38bdf8]/10 px-2.5 py-1 rounded-full border border-[#38bdf8]/20">
                     <span className="whitespace-nowrap">
@@ -755,7 +755,7 @@ function ESignatureContent() {
                     <ChevronRight className="h-4 w-4" />
                   </button>
                 </div>
-                
+
                 <div className="pt-4 border-t border-white/[0.05] space-y-3">
                   <button
                     onClick={handleApplySignature}
@@ -765,7 +765,7 @@ function ESignatureContent() {
                     {isApplyingSignature ? "Embedding..." : `Confirm ${signatures.length} Stamp${signatures.length === 1 ? '' : 's'}`}
                   </button>
                   <button onClick={resetSignature} className="w-full py-1 dmsans text-[8px] font-black text-white/20 hover:text-white/60 uppercase tracking-widest transition-colors text-center">
-                    Reset Workspace
+                    Reset
                   </button>
                 </div>
               </div>
@@ -786,13 +786,13 @@ function ESignatureContent() {
           </motion.div>
 
           {/* ════ Studio Workspace (8/12) ════ */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.98 }} 
-            animate={{ opacity: 1, scale: 1 }} 
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
             className="col-span-12 lg:col-span-8 xl:col-span-9 relative flex flex-col h-full z-10 min-w-0"
           >
             <div className="relative flex-1 rounded-[2rem] border border-white/[0.08] bg-[#0f172a]/60 backdrop-blur-3xl p-4 sm:p-8 overflow-y-auto custom-scrollbar shadow-[inset_0_0_100px_rgba(0,0,0,0.4)] flex flex-col items-center">
-              
+
               {!selectedPdfFile ? (
                 <div className="flex-1 flex flex-col items-center justify-center text-center max-w-sm py-20">
                   <div className="h-20 w-20 rounded-[2rem] bg-white/[0.03] border border-white/[0.05] flex items-center justify-center mb-6 animate-float">
@@ -800,7 +800,7 @@ function ESignatureContent() {
                   </div>
                   <h4 className="playfair text-xl font-bold text-white/60 mb-3">No Active Document</h4>
                   <p className="dmsans text-[10px] font-bold text-white/20 uppercase tracking-[0.2em] leading-relaxed">
-                    Import a secure PDF document to initiate the digital signing protocol.
+                    Import a BARCODED PDF document to initiate the digital signing.
                   </p>
                 </div>
               ) : (
@@ -863,8 +863,8 @@ function ESignatureContent() {
                         onClick={handleDownload} disabled={!signedDownloadUrl}
                         className={cn(
                           "flex items-center justify-center gap-3 px-8 h-14 rounded-xl dmsans text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl",
-                          signedDownloadUrl 
-                            ? "bg-white text-[#020617] hover:bg-[#38bdf8] shadow-white/5" 
+                          signedDownloadUrl
+                            ? "bg-white text-[#020617] hover:bg-[#38bdf8] shadow-white/5"
                             : "bg-white/5 text-white/20 border border-white/5 cursor-not-allowed"
                         )}
                       >

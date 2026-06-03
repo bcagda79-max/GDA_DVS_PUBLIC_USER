@@ -6,8 +6,8 @@ import { getSupabaseClient } from "../../../lib/supabaseClient";
 import { AuthFeedback } from "@/components/ui/auth-feedback";
 import { motion, type Variants, AnimatePresence } from "framer-motion";
 import { LoadingState } from "@/components/ui/loading-state";
-import { 
-  ShieldCheck, UserPlus, UserX, Mail, Building2, Calendar, 
+import {
+  ShieldCheck, UserPlus, UserX, Mail, Building2, Calendar,
   CheckCircle2, XCircle, Clock, Filter, Search, ChevronRight,
   MoreVertical, ShieldAlert
 } from "lucide-react";
@@ -69,7 +69,7 @@ export default function AdminRequestsPage() {
 
       if (data?.error) throw new Error(data.error);
       setFeedback({ type: "success", message: "Officer approved successfully." });
-      
+
       const res = await fetch(`/api/admin/dashboard?userId=${adminUserId}`);
       const body = await res.json();
       setOfficers(body.allOfficers ?? body.pendingOfficers ?? []);
@@ -107,11 +107,11 @@ export default function AdminRequestsPage() {
   }
 
   const filteredOfficers = officers.filter((o) => {
-    const matchesSearch = 
+    const matchesSearch =
       (o.full_name?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
       (o.email?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
       (o.department?.toLowerCase() || "").includes(searchQuery.toLowerCase());
-    
+
     if (!matchesSearch) return false;
 
     if (filter === "all") return true;
@@ -122,29 +122,29 @@ export default function AdminRequestsPage() {
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1, 
-      transition: { 
+    visible: {
+      opacity: 1,
+      transition: {
         staggerChildren: 0.05,
         delayChildren: 0.1
-      } 
+      }
     }
   };
 
   const itemVariants: Variants = {
     hidden: { opacity: 0, y: 15 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      transition: { 
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
         duration: 0.5,
         ease: [0.16, 1, 0.3, 1]
-      } 
+      }
     }
   };
 
   if (loading) {
-    return <LoadingState title="Access Control" subtitle="Reviewing pending officer credentials..." />;
+    return <LoadingState title="Loading" subtitle="Fetching Officer Requests..." />;
   }
 
   return (
@@ -153,9 +153,9 @@ export default function AdminRequestsPage() {
         {/* Advanced Background Layers */}
         <BackgroundPaths mode="background" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/50 to-[#020617] pointer-events-none" />
-        
+
         <div className="relative z-10 mx-auto max-w-[1600px] px-4 py-2 sm:px-6 lg:px-8">
-          
+
           {/* Page Header */}
           <div className="mb-4 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <motion.div
@@ -175,7 +175,7 @@ export default function AdminRequestsPage() {
               </p>
             </motion.div>
 
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
@@ -184,7 +184,7 @@ export default function AdminRequestsPage() {
               {/* Search Bar */}
               <div className="relative group">
                 <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/20 transition-colors group-focus-within:text-[#38bdf8]" />
-                <input 
+                <input
                   type="text"
                   placeholder="Search name, email, dept..."
                   value={searchQuery}
@@ -201,8 +201,8 @@ export default function AdminRequestsPage() {
                     onClick={() => setFilter(f)}
                     className={cn(
                       "h-full rounded-xl px-4 dmsans text-[10px] font-bold uppercase tracking-wider transition-all duration-300",
-                      filter === f 
-                        ? "bg-[#38bdf8] text-[#020617] shadow-[0_4px_12px_rgba(56,189,248,0.3)]" 
+                      filter === f
+                        ? "bg-[#38bdf8] text-[#020617] shadow-[0_4px_12px_rgba(56,189,248,0.3)]"
                         : "text-white/40 hover:text-white/80"
                     )}
                   >
@@ -216,7 +216,7 @@ export default function AdminRequestsPage() {
           <AuthFeedback message={feedback?.message ?? null} type={feedback?.type ?? "error"} onClose={() => setFeedback(null)} />
 
           {/* Main Content Area */}
-          <motion.section 
+          <motion.section
             variants={containerVariants}
             initial="hidden"
             animate="visible"
@@ -237,7 +237,7 @@ export default function AdminRequestsPage() {
                   <AnimatePresence mode="popLayout">
                     {filteredOfficers.length > 0 ? (
                       filteredOfficers.map((o) => (
-                        <motion.tr 
+                        <motion.tr
                           key={o.id}
                           layout
                           variants={itemVariants}
@@ -332,13 +332,13 @@ export default function AdminRequestsPage() {
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
                   <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                  <span className="dmsans text-[10px] font-bold uppercase tracking-widest text-white/30">Auth Gateway Online</span>
+                  <span className="dmsans text-[10px] font-bold uppercase tracking-widest text-white/30"></span>
                 </div>
                 <div className="h-4 w-px bg-white/5" />
                 <span className="dmsans text-[10px] font-medium text-white/20">{filteredOfficers.length} Profiles in View</span>
               </div>
               <p className="dmsans text-[10px] text-white/20 uppercase tracking-tighter">
-                GDA Identity Protection • Secure Vetting Protocol v4.1
+                GDA DVS
               </p>
             </div>
           </motion.section>

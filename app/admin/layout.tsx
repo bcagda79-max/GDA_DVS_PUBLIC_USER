@@ -352,35 +352,43 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
         {/* ═══ MAIN CONTENT ═══ */}
         <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${isDesktopOpen ? "lg:pl-[260px]" : "lg:pl-[80px]"}`}>
-          {/* Mobile Toggle — Floating pill */}
-          <button 
-            className="lg:hidden fixed top-4 left-4 z-30 flex items-center gap-2 px-3 py-2.5 rounded-xl bg-[#0a101f]/90 backdrop-blur-xl border border-white/[0.08] text-white/70 hover:text-white shadow-lg shadow-black/20 transition-all active:scale-95"
-            onClick={() => setDrawerOpen(true)}
-          >
-            <Menu className="h-4 w-4" />
-            <span className="dmsans text-[10px] font-bold uppercase tracking-widest">Menu</span>
-          </button>
 
           {/* Page Content */}
           <main className="flex-1 flex flex-col relative z-10 w-full">
             {/* Global Admin Header */}
             <div className="sticky top-0 z-20 w-full border-b border-white/[0.06] bg-[#020617]/70 backdrop-blur-2xl">
-              <div className="mx-auto w-full max-w-[1800px] px-4 sm:px-6 py-3">
-                <div className="flex items-center justify-between">
-                  <div className="min-w-0">
-                    <p className="dmsans text-[9px] font-black uppercase tracking-[0.35em] text-white/20">
+              <div className="mx-auto w-full max-w-[1800px] px-3 sm:px-6 py-3">
+                <div className="flex items-center justify-between gap-2">
+
+                  {/* Left: mobile drawer icon (hidden on lg) + desktop spacer */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      className="lg:hidden flex h-9 w-9 items-center justify-center rounded-xl bg-white/[0.04] border border-white/[0.08] text-white/60 hover:text-white hover:bg-white/[0.08] transition-all active:scale-95"
+                      onClick={() => setDrawerOpen(true)}
+                      aria-label="Open menu"
+                    >
+                      <Menu className="h-4 w-4" />
+                    </button>
+                  </div>
+
+                  {/* Center: page title */}
+                  <div className="flex-1 text-center lg:text-left">
+                    <p className="dmsans text-[9px] font-black uppercase tracking-[0.35em] text-white/20 hidden lg:block">
                       Admin Workspace
                     </p>
-                    <h2 className="playfair text-[18px] sm:text-[20px] font-bold text-white/85 truncate">
+                    <h2 className="playfair text-[16px] sm:text-[20px] font-bold text-white/85 truncate">
                       {pageTitle}
                     </h2>
                   </div>
-                  <div className="hidden sm:flex items-center gap-2">
+
+                  {/* Right: controls */}
+                  <div className="flex items-center gap-2">
                     <ThemeToggle />
-                    <div className="h-9 w-9 rounded-xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center text-white/60">
+                    <div className="hidden sm:flex h-9 w-9 rounded-xl bg-white/[0.03] border border-white/[0.06] items-center justify-center text-white/60">
                       <Zap className="h-4 w-4 text-[#38bdf8]/70" />
                     </div>
                   </div>
+
                 </div>
               </div>
             </div>

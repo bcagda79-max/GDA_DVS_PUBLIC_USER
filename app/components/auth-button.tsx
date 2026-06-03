@@ -73,10 +73,10 @@ export function AuthButton() {
     <a
       href="/signin"
       aria-label="Portal Sign In"
-      className="inline-flex items-center gap-2 rounded-xl border border-[#38bdf8]/30 px-5 py-2 dmsans text-[13px] font-medium text-[#38bdf8] bg-[#38bdf8]/5 hover:bg-[#38bdf8]/10 hover:border-[#38bdf8]/50 transition-all duration-300"
+      title="Admin Sign In"
+      className="inline-flex items-center justify-center h-10 w-10 rounded-xl border border-[#38bdf8]/30 bg-[#38bdf8]/5 text-[#38bdf8] hover:bg-[#38bdf8]/15 hover:border-[#38bdf8]/60 transition-all duration-300"
     >
-      <LockKeyhole size={16} />
-      <span>Login</span>
+      <LockKeyhole size={17} />
     </a>
   );
 }
