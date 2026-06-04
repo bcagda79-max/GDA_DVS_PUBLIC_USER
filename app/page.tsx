@@ -1,173 +1,213 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { BackgroundPaths } from "@/components/ui/background-paths";
-import { ScanLine, ArrowRight, ShieldCheck } from "lucide-react";
-import { Footer } from "@/components/ui/footer";
+import { ArrowRight, ScanLine, ShieldCheck } from "lucide-react";
+import { ContentPageShell } from "@/components/content/content-page-shell";
 import { GetInTouch } from "@/components/ui/get-in-touch";
 
-export default function Home() {
-  const [stats, setStats] = useState<{ value: string; label: string }[]>([
-    { value: "10,000+", label: "Documents Authenticated" },
-    { value: "15+", label: "Government Departments" },
-    { value: "100%", label: "Verification Accuracy" },
-  ]);
-
+// Typing animation component - types once and stays fixed
+const TypingText = () => {
+  const words = ["Authenticate.", "Verify.", "Trust."];
+  const [displayedText, setDisplayedText] = useState<string[]>(["", "", ""]);
+  const [finished, setFinished] = useState(false);
+  const [showCursor, setShowCursor] = useState(true);
+  const hasTyped = useRef(false);
 
   useEffect(() => {
+    if (hasTyped.current) {
+      setDisplayedText(words);
+      setFinished(true);
+      return;
+    }
+
+    hasTyped.current = true;
     let mounted = true;
-    (async () => {
-      try {
-        const res = await fetch('/api/public/metrics');
-        if (!res.ok) return;
-        const body = await res.json().catch(() => null);
-        if (!body || !mounted) return;
-        const total = typeof body.totalDocuments === 'number' ? body.totalDocuments : 0;
-        const depts = typeof body.departmentsCount === 'number' ? body.departmentsCount : 6;
-        const displayTotal = total > 1000 ? "1000+" : total.toLocaleString();
-        setStats([
-          { value: displayTotal, label: 'Documents Authenticated' },
-          { value: String(depts), label: 'Government Departments' },
-          { value: '100%', label: 'Verification Accuracy' },
-        ]);
-      } catch (e) {
-        // ignore and keep defaults
+    let wordIndex = 0;
+    let charIndex = 0;
+
+    const type = () => {
+      if (!mounted || wordIndex >= words.length) {
+        setFinished(true);
+        return;
       }
-    })();
-    return () => { mounted = false; };
+
+      const word = words[wordIndex];
+      
+      if (charIndex < word.length) {
+        charIndex++;
+        setDisplayedText(prev => {
+          const newText = [...prev];
+          newText[wordIndex] = word.substring(0, charIndex);
+          return newText;
+        });
+        setTimeout(type, 80 + Math.random() * 50);
+      } else {
+        wordIndex++;
+        charIndex = 0;
+        setTimeout(type, 300);
+      }
+    };
+
+    const cursorInterval = setInterval(() => {
+      setShowCursor(prev => !prev);
+    }, 500);
+
+    setTimeout(type, 500);
+    
+    return () => {
+      mounted = false;
+      clearInterval(cursorInterval);
+    };
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#020617] text-[var(--color-text)] overflow-x-hidden">
-      {/* HERO SECTION */}
-      <section className="relative flex min-h-[100svh] items-center justify-center overflow-hidden">
-        {/* Background layers */}
-        <BackgroundPaths mode="background" className="" />
+    <h1 id="home-hero-title" className="home-hero__title">
+      <span className="home-hero__title-line">
+        {displayedText[0]}
+        {!finished && 0 < 3 && <span className={showCursor ? "opacity-100" : "opacity-0"}>|</span>}
+      </span>
+      <span className="home-hero__title-line">
+        {displayedText[1]}
+      </span>
+      <span className="home-hero__title-line home-hero__title-line--accent">
+        {displayedText[2]}
+      </span>
+    </h1>
+  );
+};
 
-        <div
-          className="absolute inset-0 opacity-[0.035] pointer-events-none"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-            backgroundSize: '256px',
-          }}
-        />
+// Counting animation hook - with localStorage persistence!
+const useCountAnimation = (target: number, duration = 2000, format = (v: number) => String(v), key: string) => {
+  const [count, setCount] = useState(target);
+  const isAnimating = useRef(false);
 
-        <div className="absolute bottom-0 left-0 right-0 h-48 pointer-events-none bg-gradient-to-t from-[#020617] to-transparent" />
+  useEffect(() => {
+    // Check if we've already animated this value before
+    const hasAnimatedBefore = localStorage.getItem(`gdav_animated_${key}`);
+    
+    if (hasAnimatedBefore === 'true') {
+      setCount(target);
+      return;
+    }
 
-        <div className="absolute left-0 right-0 h-[1px] top-1/2 pointer-events-none bg-gradient-to-r from-transparent via-[#38bdf8]/10 to-transparent" />
+    // Animate from 0 to target
+    isAnimating.current = true;
+    setCount(0);
+    let startTime: number | null = null;
+    let animationFrame: number;
 
-        {/* Hero content container */}
-        <div className="relative z-10 mx-auto w-full max-w-5xl px-6 pt-20 pb-16 flex flex-col items-center text-center">
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      
+      // Ease out quart
+      const easeOut = 1 - Math.pow(1 - progress, 4);
+      const currentCount = Math.round(easeOut * target);
+      
+      setCount(currentCount);
+      
+      if (progress < 1) {
+        animationFrame = requestAnimationFrame(animate);
+      } else {
+        localStorage.setItem(`gdav_animated_${key}`, 'true');
+        isAnimating.current = false;
+      }
+    };
+    
+    animationFrame = requestAnimationFrame(animate);
+    
+    return () => {
+      cancelAnimationFrame(animationFrame);
+    };
+  }, [target, duration, key]);
 
-          {/* System badge removed as requested */}
+  return format(count);
+};
 
-          <motion.div
-            initial="hidden"
-            animate="show"
-            variants={{
-              hidden: {},
-              show: { transition: { staggerChildren: 0.1 } },
-            }}
-            className="mb-2"
-          >
-            <div className="playfair text-[2.6rem] xs:text-5xl sm:text-7xl md:text-8xl lg:text-[96px] leading-[1.05] font-bold">
-              <motion.span
-                variants={{ hidden: { y: 60, opacity: 0 }, show: { y: 0, opacity: 1, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } } }}
-                className="block text-white text-glow-white"
-              >
-                Authenticate.
-              </motion.span>
-              <motion.span
-                variants={{ hidden: { y: 60, opacity: 0 }, show: { y: 0, opacity: 1, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } } }}
-                className="block text-white text-glow-white"
-              >
-                Verify.
-              </motion.span>
-              <motion.span
-                variants={{ hidden: { y: 60, opacity: 0 }, show: { y: 0, opacity: 1, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } } }}
-                className="block text-gradient-blue text-glow-blue"
-              >
-                Trust.
-              </motion.span>
-            </div>
+// Animated Background Component
+const AnimatedBackground = () => {
+  return (
+    <div className="absolute inset-0 overflow-hidden z-0 pointer-events-none">
+      {/* Animated Gradient Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/15 via-transparent to-cyan-500/15 dark:from-blue-900/30 dark:to-cyan-900/30 animate-gradient-shift"></div>
+      
+      {/* Floating Orbs */}
+      <div className="absolute top-1/4 left-1/4 w-40 h-40 bg-blue-500/25 dark:bg-blue-400/30 rounded-full blur-3xl animate-float-orb"></div>
+      <div className="absolute bottom-1/3 right-1/4 w-48 h-48 bg-cyan-500/25 dark:bg-cyan-400/30 rounded-full blur-3xl animate-float-orb-reverse"></div>
+      <div className="absolute top-1/2 left-1/2 w-32 h-32 bg-purple-500/25 dark:bg-purple-400/30 rounded-full blur-2xl animate-float-orb-slow"></div>
+      
+      {/* Subtle Grid/Particles */}
+      <div className="absolute inset-0 opacity-40 dark:opacity-35" style={{
+        backgroundImage: `radial-gradient(circle at 1px 1px, rgba(59,130,246,0.35) 1px, transparent 0)`,
+        backgroundSize: '35px 35px'
+      }}></div>
+      
+      {/* Additional Accent Particles */}
+      <div className="absolute top-0 left-0 w-full h-full opacity-20" style={{
+        backgroundImage: `radial-gradient(circle at 20px 30px, rgba(6,182,212,0.4) 2px, transparent 0)`,
+        backgroundSize: '80px 80px'
+      }}></div>
+    </div>
+  );
+};
 
-            <motion.div
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: 72, opacity: 1 }}
-              transition={{ duration: 1, delay: 0.5 }}
-              className="mx-auto mt-4 h-[3px] rounded-full shimmer-line"
-            />
-          </motion.div>
+export default function Home() {
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="dmsans mt-8 mx-auto max-w-[560px] text-base sm:text-lg leading-[1.85] text-white/60 font-light"
-          >
-            The Galiyat Development Authority Document Verification System ensures every
-            official document is uniquely identified, barcode-authenticated, and instantly
-            verifiable — protecting citizens and institutions alike.
-          </motion.p>
+  // Get counting values with persistence
+  const displayUsers = useCountAnimation(50, 1800, (v) => `${v}+`, 'users');
+  const displayDepts = useCountAnimation(5, 1500, (v) => `${v}+`, 'depts');
+  const displayPercent = useCountAnimation(100, 1800, (v) => `${v}%`, 'percent');
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            className="mt-10"
-          >
-            <Link href="/verify">
-              <motion.span
-                whileHover={{ y: -3, boxShadow: "0 20px 40px rgba(56, 189, 248, 0.2)" }}
-                whileTap={{ scale: 0.98 }}
-                className="inline-flex items-center gap-3 rounded-2xl px-9 py-4 bg-gradient-to-br from-[#2563eb] to-[#1e40af] text-white dmsans text-sm font-semibold tracking-wide shadow-[0_8px_24px_rgba(37,99,235,0.2)] transition-all duration-300 cursor-pointer"
-                style={{ display: "inline-flex" }}
-              >
-                <ScanLine className="h-4 w-4" />
-                Verify Document
-                <ArrowRight className="h-4 w-4" />
-              </motion.span>
+  const stats = [
+    { value: displayUsers, label: "Active Users" },
+    { value: displayDepts, label: "Government Departments" },
+    { value: displayPercent, label: "Verification Accuracy" },
+  ];
+
+  return (
+    <ContentPageShell>
+      <section className="home-hero relative overflow-hidden" aria-labelledby="home-hero-title">
+        {/* Animated Background */}
+        <AnimatedBackground />
+
+        <div className="home-hero__inner relative z-10">
+          <TypingText />
+          
+          <div className="home-hero__rule" aria-hidden />
+
+          <p className="home-hero__subtitle">
+            The Galiyat Development Authority Document Verification System ensures every official
+            document is uniquely identified, barcode-authenticated, and instantly verifiable —
+            protecting citizens and institutions alike.
+          </p>
+
+          <div className="home-hero__actions">
+            <Link href="/verify" className="home-btn-primary">
+              <ScanLine aria-hidden />
+              Verify Document
+              <ArrowRight aria-hidden />
             </Link>
-          </motion.div>
+            <p className="home-hero__note">
+              <ShieldCheck aria-hidden />
+              No login required for public document verification
+            </p>
+          </div>
 
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.7 }}
-            className="mt-5 flex items-center justify-center gap-2 dmsans text-xs text-white/35 tracking-wide"
-          >
-            <ShieldCheck className="h-3.5 w-3.5 text-[#38bdf8]" />
-            No login required for public document verification
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.7 }}
-            viewport={{ once: true }}
-            className="mt-20 w-full max-w-3xl mx-auto grid grid-cols-3 divide-x divide-[#38bdf8]/10 border border-[#38bdf8]/10 rounded-2xl bg-[#0f172a]/40 backdrop-blur-md overflow-hidden"
-          >
+          <div className="home-stats" role="list" aria-label="System metrics">
             {stats.map((stat) => (
-              <div key={stat.label} className="py-6 px-4 text-center">
-                <div className="playfair text-3xl sm:text-4xl font-bold text-gradient-blue">{stat.value}</div>
-                <div className="dmsans mt-1.5 text-[11px] uppercase tracking-[0.1em] text-white/40 font-medium">{stat.label}</div>
+              <div key={stat.label} className="home-stats__item" role="listitem">
+                <div className="home-stats__value">{stat.value}</div>
+                <div className="home-stats__label">{stat.label}</div>
               </div>
             ))}
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }} className="mt-16 flex flex-col items-center gap-2">
-            <div className="h-10 w-[1px] bg-gradient-to-b from-[#38bdf8]/50 to-transparent animate-float" />
-            <span className="dmsans text-[10px] tracking-[0.2em] uppercase text-white/25">Scroll</span>
-          </motion.div>
-
+          </div>
         </div>
       </section>
 
-      <GetInTouch />
-
-      <Footer />
-    </div>
+      <div className="home-section-divider">
+        <GetInTouch />
+      </div>
+    </ContentPageShell>
   );
 }
