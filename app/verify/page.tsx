@@ -1,15 +1,14 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState, Suspense } from "react";
+import { useCallback, useEffect, useRef, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { getSupabaseClient } from "../../lib/supabaseClient";
-import { BrowserMultiFormatReader, ChecksumException } from "@zxing/library";
+import { BrowserMultiFormatReader, ChecksumException, BarcodeFormat, DecodeHintType } from "@zxing/library";
 import {
   AlertCircle,
   AlertTriangle,
   Camera,
-  Database,
   Info,
   Keyboard,
   Lock,
@@ -123,7 +122,16 @@ function VerifyContent() {
   useEffect(() => {
     if (!scanning || !videoRef.current) return;
 
-    const codeReader = new BrowserMultiFormatReader();
+    // Create hints map for faster Code128 scanning
+    const hints = new Map<DecodeHintType, any>();
+    hints.set(DecodeHintType.POSSIBLE_FORMATS, [BarcodeFormat.CODE_128]); // ONLY Code128
+    hints.set(DecodeHintType.TRY_HARDER, false); // No extra processing, scan faster!
+
+    // Initialize scanner with hints
+    const codeReader = new BrowserMultiFormatReader(hints);
+
+    // Manually set scan delay to 200ms for super fast scanning!
+    (codeReader as any).delayBetweenScanAttempts = 200;
 
     const startScanning = async () => {
       try {
