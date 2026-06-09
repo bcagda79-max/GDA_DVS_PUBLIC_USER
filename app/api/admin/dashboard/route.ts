@@ -1,10 +1,33 @@
 import { NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
+import { db } from "@/lib/db";
 
 export const runtime = "nodejs";
 
 // include rejected fields so clients can show rejected state without extra queries
 const officerSelect = "id, user_id, email, full_name, designation, department, role, confirmed, approved, approved_at, approved_by, rejected, rejected_at, rejected_by, created_at";
+
+const monthlyCount = async (tableName: string, timestampColumn: string) => {
+  const now = new Date();
+  const months: { label: string; value: number }[] = [];
+
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const start = new Date(d.getFullYear(), d.getMonth(), 1).toISOString();
+    const end = new Date(d.getFullYear(), d.getMonth() + 1, 1).toISOString();
+
+    const result = await db.query(
+      `SELECT COUNT(1)::int AS count FROM ${tableName} WHERE ${timestampColumn} >= $1 AND ${timestampColumn} < $2`,
+      [start, end],
+    );
+
+    months.push({
+      label: d.toLocaleString("en-US", { month: "short" }),
+      value: result.rows[0]?.count ?? 0,
+    });
+  }
+
+  return months;
+};
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -14,137 +37,80 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "userId is required." }, { status: 400 });
   }
 
-  const supabaseAdmin = getSupabaseAdmin();
-  if (!supabaseAdmin) {
-    return NextResponse.json({ error: "Missing Supabase admin client." }, { status: 500 });
-  }
+  const adminResult = await db.query(
+    `SELECT ${officerSelect} FROM officers WHERE user_id = $1 AND role = 'admin' LIMIT 1`,
+    [userId],
+  );
 
-  const { data: adminOfficer } = await (supabaseAdmin.from("officers") as any)
-    .select(officerSelect)
-    .eq("user_id", userId)
-    .eq("role", "admin")
-    .maybeSingle();
-
-  if (!adminOfficer) {
+  if (!adminResult.rows[0]) {
     return NextResponse.json({ error: "Admin access required." }, { status: 403 });
   }
 
-  const [{ count: totalOfficers }, { count: pendingRequests }, { count: totalDocuments }, { count: totalLogins }] = await Promise.all([
-    (supabaseAdmin.from("officers") as any).select("id", { count: "exact", head: true }),
-    (supabaseAdmin.from("officers") as any)
-      .select("id", { count: "exact", head: true })
-      .eq("role", "officer")
-      .eq("approved", false),
-    (supabaseAdmin.from("documents") as any).select("id", { count: "exact", head: true }),
-    (supabaseAdmin.from("officer_logins") as any).select("id", { count: "exact", head: true }),
+  const [totalOfficersResult, pendingRequestsResult, totalDocumentsResult, totalLoginsResult] = await Promise.all([
+    db.query(`SELECT COUNT(1)::int AS count FROM officers`),
+    db.query(`SELECT COUNT(1)::int AS count FROM officers WHERE role = 'officer' AND approved = false`),
+    db.query(`SELECT COUNT(1)::int AS count FROM documents`),
+    db.query(`SELECT COUNT(1)::int AS count FROM officer_logins`),
   ]);
 
-  const { data: pendingOfficers } = await (supabaseAdmin.from("officers") as any)
-    .select(officerSelect)
-    .eq("role", "officer")
-    .eq("approved", false)
-    .order("created_at", { ascending: false })
-    .limit(20);
+  const pendingOfficersResult = await db.query(
+    `SELECT ${officerSelect} FROM officers WHERE role = 'officer' AND approved = false ORDER BY created_at DESC LIMIT 20`,
+  );
 
-  const { data: allOfficers } = await (supabaseAdmin.from("officers") as any)
-    .select(officerSelect)
-    .eq("role", "officer")
-    .order("created_at", { ascending: false })
-    .limit(500);
+  const allOfficersResult = await db.query(
+    `SELECT ${officerSelect} FROM officers WHERE role = 'officer' ORDER BY created_at DESC LIMIT 500`,
+  );
 
-  const { data: documents } = await (supabaseAdmin.from("documents") as any)
-    .select("id, title, department, recipient_name, processed_by, created_at")
-    .order("created_at", { ascending: false })
-    .limit(20);
+  const documentsResult = await db.query(
+    `SELECT id, title, department, recipient_name, processed_by, created_at FROM documents ORDER BY created_at DESC LIMIT 20`,
+  );
 
-  const { data: loginLogs } = await (supabaseAdmin.from("officer_logins") as any)
-    .select("id, user_id, email, full_name, role, login_status, ip_address, browser, operating_system, device_type, created_at")
-    .order("created_at", { ascending: false })
-    .limit(25);
+  const loginLogsResult = await db.query(
+    `SELECT id, user_id, email, full_name, role, login_status, ip_address, browser, operating_system, device_type, created_at FROM officer_logins ORDER BY created_at DESC LIMIT 25`,
+  );
 
   const userIds = Array.from(
     new Set([
-      ...(documents ?? []).map((row: any) => row.processed_by).filter(Boolean),
-      ...(loginLogs ?? []).map((row: any) => row.user_id).filter(Boolean),
-      ...(pendingOfficers ?? []).map((row: any) => row.user_id).filter(Boolean),
+      ...documentsResult.rows.map((row: any) => row.processed_by).filter(Boolean),
+      ...loginLogsResult.rows.map((row: any) => row.user_id).filter(Boolean),
+      ...pendingOfficersResult.rows.map((row: any) => row.user_id).filter(Boolean),
     ]),
   );
 
   let officerNameMap: Record<string, string> = {};
   if (userIds.length > 0) {
-    const { data: officersForNames } = await (supabaseAdmin.from("officers") as any)
-      .select("user_id, full_name")
-      .in("user_id", userIds);
-
-    officerNameMap = (officersForNames ?? []).reduce((acc: Record<string, string>, row: any) => {
-      if (row.user_id) {
-        acc[row.user_id] = row.full_name;
-      }
+    const namesResult = await db.query(
+      `SELECT user_id, full_name FROM officers WHERE user_id = ANY($1::text[])`,
+      [userIds],
+    );
+    officerNameMap = namesResult.rows.reduce((acc: Record<string, string>, row: any) => {
+      if (row.user_id) acc[row.user_id] = row.full_name;
       return acc;
     }, {});
   }
 
   return NextResponse.json({
     metrics: {
-      totalOfficers: totalOfficers ?? 0,
-      pendingRequests: pendingRequests ?? 0,
-      totalDocuments: totalDocuments ?? 0,
-      totalLogins: totalLogins ?? 0,
+      totalOfficers: totalOfficersResult.rows[0]?.count ?? 0,
+      pendingRequests: pendingRequestsResult.rows[0]?.count ?? 0,
+      totalDocuments: totalDocumentsResult.rows[0]?.count ?? 0,
+      totalLogins: totalLoginsResult.rows[0]?.count ?? 0,
     },
-    // Add simple monthly aggregates for documents and logins (last 12 months)
-    documentsMonthly: await (async () => {
-      try {
-        const now = new Date();
-        const months: { label: string; value: number }[] = [];
-        for (let i = 11; i >= 0; i--) {
-          const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-          const start = new Date(d.getFullYear(), d.getMonth(), 1).toISOString();
-          const end = new Date(d.getFullYear(), d.getMonth() + 1, 1).toISOString();
-          const { count } = await (supabaseAdmin.from("documents") as any)
-            .select("id", { count: "exact", head: true })
-            .gte("created_at", start)
-            .lt("created_at", end);
-          const label = d.toLocaleString("en-US", { month: "short" });
-          months.push({ label, value: count ?? 0 });
-        }
-        return months;
-      } catch (e) {
-        return [];
-      }
-    })(),
-    loginsMonthly: await (async () => {
-      try {
-        const now = new Date();
-        const months: { label: string; value: number }[] = [];
-        for (let i = 11; i >= 0; i--) {
-          const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-          const start = new Date(d.getFullYear(), d.getMonth(), 1).toISOString();
-          const end = new Date(d.getFullYear(), d.getMonth() + 1, 1).toISOString();
-          const { count } = await (supabaseAdmin.from("officer_logins") as any)
-            .select("id", { count: "exact", head: true })
-            .gte("created_at", start)
-            .lt("created_at", end);
-          const label = d.toLocaleString("en-US", { month: "short" });
-          months.push({ label, value: count ?? 0 });
-        }
-        return months;
-      } catch (e) {
-        return [];
-      }
-    })(),
-    pendingOfficers: (pendingOfficers ?? []).map((row: any) => ({
+    documentsMonthly: await monthlyCount("documents", "created_at"),
+    loginsMonthly: await monthlyCount("officer_logins", "created_at"),
+    pendingOfficers: pendingOfficersResult.rows.map((row: any) => ({
       ...row,
       name: row.full_name,
     })),
-    allOfficers: (allOfficers ?? []).map((row: any) => ({
+    allOfficers: allOfficersResult.rows.map((row: any) => ({
       ...row,
       name: row.full_name,
     })),
-    documentHistory: (documents ?? []).map((row: any) => ({
+    documentHistory: documentsResult.rows.map((row: any) => ({
       ...row,
       officerName: row.processed_by ? officerNameMap[row.processed_by] ?? "Unknown officer" : "Unknown officer",
     })),
-    loginHistory: (loginLogs ?? []).map((row: any) => ({
+    loginHistory: loginLogsResult.rows.map((row: any) => ({
       ...row,
       officerName: row.user_id ? officerNameMap[row.user_id] ?? row.full_name ?? "Unknown officer" : row.full_name ?? "Unknown officer",
     })),

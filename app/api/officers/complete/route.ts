@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
+import { db } from "@/lib/db";
 
 export const runtime = "nodejs";
 
@@ -19,51 +19,55 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "userId and email are required." }, { status: 400 });
     }
 
-    const supabaseAdmin = getSupabaseAdmin();
-    if (!supabaseAdmin) {
-      return NextResponse.json({ error: "Missing Supabase admin client." }, { status: 500 });
-    }
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const existingResult = await db.query(
+      `SELECT id, role, approved FROM officers WHERE email = $1 LIMIT 1`,
+      [normalizedEmail],
+    );
 
-    const { data: existingOfficer } = await (supabaseAdmin.from("officers") as any)
-      .select("id, role, approved")
-      .eq("email", email)
-      .maybeSingle();
+    const existingOfficer = existingResult.rows[0];
 
     if (existingOfficer) {
-      const updatePayload: Record<string, unknown> = {
+      const updatePayload = {
         user_id: userId,
-        email,
+        email: normalizedEmail,
         role: existingOfficer.role ?? role ?? "officer",
         confirmed: true,
         approved: existingOfficer.role === "admin" ? true : existingOfficer.approved ?? false,
-      };
-
-      if (fullName) updatePayload.full_name = fullName;
-      if (designation) updatePayload.designation = designation;
-      if (department) updatePayload.department = department;
-
-      const { error } = await (supabaseAdmin.from("officers") as any)
-        .update(updatePayload)
-        .eq("email", email);
-
-      if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
-      }
-    } else {
-      const { error } = await (supabaseAdmin.from("officers") as any).insert({
-        user_id: userId,
-        email,
-        full_name: fullName ?? email,
+        full_name: fullName ?? normalizedEmail,
         designation: designation ?? "Officer",
         department: department ?? "BCA",
-        role: role === "admin" ? "admin" : "officer",
-        confirmed: true,
-        approved: role === "admin",
-      });
+      };
 
-      if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
-      }
+      await db.query(
+        `UPDATE officers SET user_id = $1, email = $2, role = $3, confirmed = $4, approved = $5, full_name = $6, designation = $7, department = $8 WHERE email = $9`,
+        [
+          updatePayload.user_id,
+          updatePayload.email,
+          updatePayload.role,
+          updatePayload.confirmed,
+          updatePayload.approved,
+          updatePayload.full_name,
+          updatePayload.designation,
+          updatePayload.department,
+          normalizedEmail,
+        ],
+      );
+    } else {
+      await db.query(
+        `INSERT INTO officers (user_id, email, full_name, designation, department, role, confirmed, approved)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+        [
+          userId,
+          normalizedEmail,
+          fullName ?? normalizedEmail,
+          designation ?? "Officer",
+          department ?? "BCA",
+          role === "admin" ? "admin" : "officer",
+          true,
+          role === "admin",
+        ],
+      );
     }
 
     return NextResponse.json({ ok: true });

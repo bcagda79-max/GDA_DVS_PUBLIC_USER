@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { getSupabaseClient } from "../../lib/supabaseClient";
+import { getCurrentUser } from "@/lib/auth-client";
 import { BrowserMultiFormatReader, ChecksumException, BarcodeFormat, DecodeHintType } from "@zxing/library";
 import {
   AlertCircle,
@@ -436,13 +436,11 @@ function VerifyContent() {
 
 export default function VerifyDocumentPage({ showFooter = true }: { showFooter?: boolean }) {
   const router = useRouter();
-  const supabase = getSupabaseClient();
 
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await supabase.auth.getUser();
-        const user = data?.user ?? null;
+        const user = await getCurrentUser();
         if (!user) return;
 
         const res = await fetch(`/api/access/context?userId=${user.id}`);
@@ -455,7 +453,7 @@ export default function VerifyDocumentPage({ showFooter = true }: { showFooter?:
         // ignore
       }
     })();
-  }, [router, supabase]);
+  }, [router]);
 
   const body = (
     <div className="verify-page">

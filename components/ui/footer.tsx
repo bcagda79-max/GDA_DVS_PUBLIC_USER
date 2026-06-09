@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { getSupabaseClient } from "../../lib/supabaseClient";
+import { getCurrentUser } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
 const socialLinks = [
@@ -240,17 +240,14 @@ export function Footer({ variant = "auto" }: { variant?: FooterVariant }) {
 
   useEffect(() => {
     let mounted = true;
-    const supabase = getSupabaseClient();
 
     (async () => {
       try {
-        const { data } = await supabase.auth.getUser();
-        const user = data?.user ?? null;
+        const user = await getCurrentUser();
         if (!user) return; // keep public links
 
         const res = await fetch(`/api/access/context?userId=${user.id}`);
-        if (!mounted) return;
-        if (!res.ok) return;
+        if (!mounted || !res.ok) return;
         const body = await res.json();
 
         if (body?.isAdmin) {

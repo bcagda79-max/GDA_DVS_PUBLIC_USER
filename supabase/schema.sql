@@ -28,6 +28,7 @@ create table if not exists public.officers (
   designation text not null,
   department text not null,
   role text not null default 'officer',
+  password_hash text,
   confirmed boolean not null default false,
   approved boolean not null default false,
   approved_at timestamptz,

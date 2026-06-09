@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
+import { db } from "@/lib/db";
 import { getOfficerContextByUserId } from "@/lib/officer-access";
+import { saveDocumentFile } from "@/lib/storage";
 
 export const runtime = "nodejs";
 
@@ -20,66 +21,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Not authorized" }, { status: 403 });
     }
 
-    const supabaseAdmin = getSupabaseAdmin();
-    if (!supabaseAdmin) {
-      return NextResponse.json({ error: "Missing Supabase env" }, { status: 500 });
-    }
+    const result = await db.query(
+      `SELECT storage_path FROM documents WHERE id = $1 LIMIT 1`,
+      [documentId],
+    );
 
-    // 1. Fetch the current document record to get its storage_path
-    const { data: docRecord, error: fetchError } = await (supabaseAdmin.from("documents") as any)
-      .select("storage_path, processed_file_name")
-      .eq("id", documentId)
-      .maybeSingle();
-
-    if (fetchError || !docRecord) {
-      return NextResponse.json({ error: "Document not found." }, { status: 404 });
+    const docRecord = result.rows[0];
+    if (!docRecord?.storage_path) {
+      return NextResponse.json({ error: "Document not found or missing storage path." }, { status: 404 });
     }
 
     const storagePath = docRecord.storage_path;
-    if (!storagePath) {
-      return NextResponse.json({ error: "No storage path for this document." }, { status: 400 });
-    }
-
-    // 2. Read the signed PDF bytes
     const pdfBuffer = Buffer.from(await signedPdf.arrayBuffer());
 
-    // 3. Replace the file in Supabase storage (using update to overwrite reliably, falling back to upload)
-    let uploadError = null;
-    const { error: storageUpdateError } = await supabaseAdmin.storage
-      .from("documents")
-      .update(storagePath, pdfBuffer, {
-        contentType: "application/pdf",
-      });
+    await saveDocumentFile(storagePath, pdfBuffer);
 
-    if (storageUpdateError) {
-      // Fallback to upload with upsert if update fails (e.g. if file not found)
-      const { error: retryError } = await supabaseAdmin.storage
-        .from("documents")
-        .upload(storagePath, pdfBuffer, {
-          contentType: "application/pdf",
-          upsert: true,
-        });
-      uploadError = retryError;
-    }
-
-    if (uploadError) {
-      throw uploadError;
-    }
-
-    // 4. Mark the document as verified + signed
-    const { error: updateError } = await (supabaseAdmin.from("documents") as any)
-      .update({
-        verified: true,
-        verified_by: adminUserId,
-        verified_at: new Date().toISOString(),
-        mime_type: "application/pdf",
-        file_size: pdfBuffer.length,
-      })
-      .eq("id", documentId);
-
-    if (updateError) {
-      throw updateError;
-    }
+    await db.query(
+      `UPDATE documents SET verified = true, verified_by = $1, verified_at = NOW(), mime_type = 'application/pdf', file_size = $2 WHERE id = $3`,
+      [adminUserId, pdfBuffer.length, documentId],
+    );
 
     return NextResponse.json({ ok: true, documentId });
   } catch (err: any) {

@@ -1,4 +1,4 @@
-import { getSupabaseAdmin } from "./supabaseAdmin";
+import { db } from "./db";
 
 export type OfficerRole = "admin" | "officer";
 
@@ -24,24 +24,19 @@ export type OfficerContext = OfficerRecord & {
 };
 
 export async function getOfficerByUserId(userId: string) {
-  const supabaseAdmin = getSupabaseAdmin();
+  const result = await db.query(
+    `SELECT id, user_id, email, full_name, designation, department, role, confirmed, approved, approved_at, approved_by, created_at
+     FROM officers
+     WHERE user_id = $1
+     LIMIT 1`,
+    [userId],
+  );
 
-  if (!supabaseAdmin) {
+  if (!result.rows.length) {
     return null;
   }
 
-  const { data, error } = await (supabaseAdmin.from("officers") as any)
-    .select(
-      "id, user_id, email, full_name, designation, department, role, confirmed, approved, approved_at, approved_by, created_at",
-    )
-    .eq("user_id", userId)
-    .maybeSingle();
-
-  if (error || !data) {
-    return null;
-  }
-
-  return data as OfficerRecord;
+  return result.rows[0] as OfficerRecord;
 }
 
 export async function getOfficerContextByUserId(userId: string): Promise<OfficerContext | null> {

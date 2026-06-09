@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
+import { db } from "@/lib/db";
 import { getOfficerContextByUserId } from "@/lib/officer-access";
 
 export const runtime = "nodejs";
@@ -17,24 +17,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Not authorized. Super Admin only." }, { status: 403 });
     }
 
-    const supabaseAdmin = getSupabaseAdmin();
-    if (!supabaseAdmin) {
-      return NextResponse.json({ error: "Missing Supabase env" }, { status: 500 });
-    }
-
-    const updatePayload = {
-      verified: verifyStatus,
-      verified_by: verifyStatus ? userId : null,
-      verified_at: verifyStatus ? new Date().toISOString() : null,
-    };
-
-    const { error } = await (supabaseAdmin.from("documents") as any)
-      .update(updatePayload)
-      .eq("id", documentId);
-
-    if (error) {
-      throw error;
-    }
+    await db.query(
+      `UPDATE documents SET verified = $1, verified_by = $2, verified_at = $3 WHERE id = $4`,
+      [verifyStatus, verifyStatus ? userId : null, verifyStatus ? new Date().toISOString() : null, documentId],
+    );
 
     return NextResponse.json({ ok: true, documentId, verified: verifyStatus });
   } catch (err: any) {

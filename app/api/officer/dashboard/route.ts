@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
 import { getOfficerContextByUserId } from "@/lib/officer-access";
-import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
 
 export const runtime = "nodejs";
 
@@ -13,19 +13,16 @@ export async function GET(request: Request) {
   }
 
   const context = await getOfficerContextByUserId(userId);
-  const supabaseAdmin = getSupabaseAdmin();
-
-  if (!context || !supabaseAdmin) {
+  if (!context) {
     return NextResponse.json({ error: "Officer not found." }, { status: 404 });
   }
 
-  const { data: documents } = await (supabaseAdmin.from("documents") as any)
-    .select("id, title, department, recipient_name, processed_by, created_at")
-    .eq("processed_by", userId)
-    .order("created_at", { ascending: false })
-    .limit(100);
+  const documentsResult = await db.query(
+    `SELECT id, title, department, recipient_name, processed_by, created_at FROM documents WHERE processed_by = $1 ORDER BY created_at DESC LIMIT 100`,
+    [userId],
+  );
 
-  const items = documents ?? [];
+  const items = documentsResult.rows;
   const now = new Date();
   const startOfToday = new Date(now);
   startOfToday.setHours(0, 0, 0, 0);

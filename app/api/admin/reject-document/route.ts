@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
+import { db } from "@/lib/db";
+import { deleteDocumentFile } from "@/lib/storage";
 import { getOfficerContextByUserId } from "@/lib/officer-access";
 
 export const runtime = "nodejs";
@@ -17,39 +18,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Not authorized. Super Admin only." }, { status: 403 });
     }
 
-    const supabaseAdmin = getSupabaseAdmin();
-    if (!supabaseAdmin) {
-      return NextResponse.json({ error: "Missing Supabase env" }, { status: 500 });
+    const result = await db.query(
+      `SELECT storage_path FROM documents WHERE id = $1 LIMIT 1`,
+      [documentId],
+    );
+
+    const docRecord = result.rows[0];
+    if (docRecord?.storage_path) {
+      await deleteDocumentFile(docRecord.storage_path);
     }
 
-    // Fetch the document to get the storage path
-    const { data: docRecord, error: fetchError } = await (supabaseAdmin.from("documents") as any)
-      .select("storage_path")
-      .eq("id", documentId)
-      .maybeSingle();
-
-    if (fetchError) throw fetchError;
-
-    if (docRecord && docRecord.storage_path) {
-      // Delete the file from the storage bucket
-      const { error: storageError } = await supabaseAdmin.storage
-        .from("documents")
-        .remove([docRecord.storage_path]);
-
-      if (storageError) {
-        console.error("Failed to delete from storage:", storageError);
-        // Continue anyway to delete the database record
-      }
-    }
-
-    // Delete the database record
-    const { error: deleteError } = await (supabaseAdmin.from("documents") as any)
-      .delete()
-      .eq("id", documentId);
-
-    if (deleteError) {
-      throw deleteError;
-    }
+    await db.query(`DELETE FROM documents WHERE id = $1`, [documentId]);
 
     return NextResponse.json({ ok: true, documentId });
   } catch (err: any) {

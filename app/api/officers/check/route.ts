@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
+import { db } from "@/lib/db";
 
 export const runtime = "nodejs";
 
@@ -12,26 +12,12 @@ export async function GET(request: Request) {
       return NextResponse.json({ allowed: false }, { status: 400 });
     }
 
-    const supabaseAdmin = getSupabaseAdmin();
-    if (!supabaseAdmin) {
-      return NextResponse.json({ allowed: false }, { status: 500 });
-    }
+    const result = await db.query(
+      `SELECT id FROM officers WHERE user_id = $1 AND confirmed = true LIMIT 1`,
+      [userId],
+    );
 
-    const { data, error } = await (supabaseAdmin.from("officers") as any)
-      .select("id")
-      .eq("user_id", userId)
-      .eq("confirmed", true)
-      .maybeSingle();
-
-    if (error) {
-      return NextResponse.json({ allowed: false }, { status: 500 });
-    }
-
-    if (!data) {
-      return NextResponse.json({ allowed: false });
-    }
-
-    return NextResponse.json({ allowed: true });
+    return NextResponse.json({ allowed: result.rows.length > 0 });
   } catch (err) {
     return NextResponse.json({ allowed: false }, { status: 500 });
   }

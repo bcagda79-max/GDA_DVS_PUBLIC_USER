@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
+import { db } from "@/lib/db";
+import { getOfficerContextByUserId } from "@/lib/officer-access";
 
 export const runtime = "nodejs";
 
@@ -13,31 +14,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "officerId and adminUserId are required." }, { status: 400 });
     }
 
-    const supabaseAdmin = getSupabaseAdmin();
-    if (!supabaseAdmin) {
-      return NextResponse.json({ error: "Missing Supabase admin client." }, { status: 500 });
-    }
-
-    const { data: adminOfficer } = await (supabaseAdmin.from("officers") as any)
-      .select("user_id, role")
-      .eq("user_id", adminUserId)
-      .eq("role", "admin")
-      .maybeSingle();
-
-    if (!adminOfficer) {
+    const ctx = await getOfficerContextByUserId(adminUserId);
+    if (!ctx?.isAdmin) {
       return NextResponse.json({ error: "Admin access required." }, { status: 403 });
     }
 
-    const { error } = await (supabaseAdmin.from("officers") as any)
-      .update({ approved: true, approved_at: new Date().toISOString(), approved_by: adminUserId })
-      .eq("id", officerId);
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    await db.query(
+      `UPDATE officers SET approved = true, approved_at = NOW(), approved_by = $1 WHERE id = $2`,
+      [adminUserId, officerId],
+    );
 
     return NextResponse.json({ ok: true });
-  } catch (error) {
+  } catch (error: any) {
     const message = error instanceof Error ? error.message : "Failed to approve officer.";
     return NextResponse.json({ error: message }, { status: 500 });
   }

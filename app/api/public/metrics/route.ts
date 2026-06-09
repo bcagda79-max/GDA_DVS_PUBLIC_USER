@@ -1,19 +1,14 @@
 import { NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
+import { db } from "@/lib/db";
 
 export const runtime = "nodejs";
 
 export async function GET() {
-  const supabaseAdmin = getSupabaseAdmin();
-  if (!supabaseAdmin) return NextResponse.json({ error: "Missing Supabase admin client." }, { status: 500 });
-
   try {
-    const { count: totalDocuments } = await (supabaseAdmin.from("documents") as any).select("id", { count: "exact", head: true });
-
-    // Departments are currently a known set in the system; return 7 as requested.
+    const result = await db.query(`SELECT COUNT(1)::int AS count FROM documents`);
+    const totalDocuments = result.rows[0]?.count ?? 0;
     const departmentsCount = 7;
-
-    return NextResponse.json({ totalDocuments: totalDocuments ?? 0, departmentsCount });
+    return NextResponse.json({ totalDocuments, departmentsCount });
   } catch (e) {
     return NextResponse.json({ totalDocuments: 0, departmentsCount: 6 });
   }

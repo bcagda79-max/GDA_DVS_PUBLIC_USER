@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
+import { db } from "@/lib/db";
 
 export const runtime = "nodejs";
 
@@ -32,16 +32,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "userId is required." }, { status: 400 });
     }
 
-    const supabaseAdmin = getSupabaseAdmin();
-    if (!supabaseAdmin) {
-      return NextResponse.json({ error: "Missing Supabase admin client." }, { status: 500 });
-    }
+    const officerResult = await db.query(
+      `SELECT user_id, email, full_name, role FROM officers WHERE user_id = $1 LIMIT 1`,
+      [userId],
+    );
 
-    const { data: officer } = await (supabaseAdmin.from("officers") as any)
-      .select("user_id, email, full_name, role")
-      .eq("user_id", userId)
-      .maybeSingle();
-
+    const officer = officerResult.rows[0];
     if (!officer) {
       console.error(`login-log: officer not found for userId=${userId}`);
       return NextResponse.json({ error: "Officer not found." }, { status: 404 });
@@ -54,28 +50,26 @@ export async function POST(request: Request) {
       request.headers.get("x-real-ip") ??
       null;
 
-    // Ignore client-supplied browser/OS/device fields and derive them server-side
     const resolvedBrowser = detectBrowser(userAgent);
     const resolvedOS = detectOS(userAgent);
     const resolvedDevice = detectDeviceType(userAgent);
 
-    const { error } = await (supabaseAdmin.from("officer_logins") as any).insert({
-      user_id: officer.user_id,
-      email: officer.email,
-      full_name: officer.full_name,
-      role: officer.role ?? "officer",
-      login_status: String(body.status ?? body.loginStatus ?? "approved"),
-      ip_address: ipAddress,
-      browser: resolvedBrowser,
-      operating_system: resolvedOS,
-      device_type: resolvedDevice,
-      user_agent: userAgent,
-    });
-
-    if (error) {
-      console.error("login-log: insert error", error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    await db.query(
+      `INSERT INTO officer_logins (user_id, email, full_name, role, login_status, ip_address, browser, operating_system, device_type, user_agent)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+      [
+        officer.user_id,
+        officer.email,
+        officer.full_name,
+        officer.role ?? "officer",
+        String(body.status ?? body.loginStatus ?? "approved"),
+        ipAddress,
+        resolvedBrowser,
+        resolvedOS,
+        resolvedDevice,
+        userAgent,
+      ],
+    );
 
     console.log(`login-log: recorded login for userId=${userId}`);
     return NextResponse.json({ ok: true });
