@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const documentId = url.searchParams.get("id")?.trim().toUpperCase();
+  const documentId = url.searchParams.get("id")?.trim().toUpperCase().replace(/\s+/g, "-");
 
   if (!documentId) {
     return NextResponse.json({ error: "Document ID is required." }, { status: 400 });
