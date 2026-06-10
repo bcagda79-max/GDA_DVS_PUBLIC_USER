@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { verifyJwt } from "@/lib/auth";
 import { getOfficerContextByUserId } from "@/lib/officer-access";
 
 export const runtime = "nodejs";
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
   if (!token) {
     return NextResponse.json({ user: null });
